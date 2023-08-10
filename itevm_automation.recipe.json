@@ -1,0 +1,5176 @@
+{
+  "name": "ERICVM-Automation",
+  "description": "When there is a trigger event, do action",
+  "version": 47,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "slack_bot",
+    "name": "bot_command_v2",
+    "as": "ce200d10",
+    "title": null,
+    "description": "New <span class=\"provider\">ERIC VM BOT</span> command to <span class=\"provider\">Slack Workbot</span>",
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+    },
+    "toggleCfg": {
+      "domain": false,
+      "name": false,
+      "scope": false
+    },
+    "input": {
+      "allow_dialog": "true",
+      "domain": "ERIC",
+      "name": "VM",
+      "scope": "BOT",
+      "slash_command": {
+        "enable": "true",
+        "name": "/vmbot"
+      },
+      "parameters": "[\n  {\n    \"name\": \"userchoice\",\n    \"type\": \"string\",\n    \"optional\": true\n  },\n  {\n    \"name\": \"vmaction\",\n    \"type\": \"string\",\n    \"optional\": true\n  },\n  {\n    \"name\": \"nvmname\",\n    \"type\": \"string\",\n    \"optional\": true\n  },\n  {\n    \"name\": \"vmid\",\n    \"type\": \"string\",\n    \"optional\": true\n  },\n  {\n    \"name\": \"modalviewtype\",\n    \"type\": \"string\",\n    \"optional\": true\n  },\n  {\n    \"name\": \"Ntemplate\",\n    \"type\": \"string\",\n    \"optional\": true\n  },\n  {\n    \"name\": \"vmname\",\n    \"type\": \"string\",\n    \"optional\": true\n  }\n]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Userchoice",
+            "name": "userchoice",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "Vmaction",
+            "name": "vmaction",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "Nvmname",
+            "name": "nvmname",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "Vmid",
+            "name": "vmid",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "Modalviewtype",
+            "name": "modalviewtype",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "Ntemplate",
+            "name": "ntemplate",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "Vmname",
+            "name": "vmname",
+            "type": "string",
+            "optional": true
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "lookup_table",
+        "name": "search_entries",
+        "as": "4e2366a6",
+        "title": null,
+        "description": "\n      Search\n      <span class=\"provider\">entries</span>\n      in\n      <span class=\"provider\">ERIC-VMware-db</span>\n      lookup table\n    ",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "lookup_table_id": "ERIC-VMware-db"
+        },
+        "toggleCfg": {
+        },
+        "input": {
+          "lookup_table_id": {
+            "zip_name": "ERIC_vmware_db.lookup_table.json",
+            "name": "ERIC-VMware-db",
+            "folder": ""
+          },
+          "parameters": {
+            "col2": "#{_('data.slack_bot.ce200d10.context.user_email')}"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Entries",
+            "name": "entries",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "number",
+                "label": "Entry ID",
+                "parse_output": "integer_conversion",
+                "type": "integer",
+                "name": "id"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "UserAccount",
+                    "name": "col2",
+                    "type": "string",
+                    "sticky": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "VmInfo",
+                    "name": "col3",
+                    "type": "string",
+                    "sticky": true
+                  }
+                ],
+                "label": "Entry",
+                "type": "object",
+                "name": "entry"
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "hint": "Provide one or more entry fields to search the entry",
+            "label": "Search by",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "UserAccount",
+                "name": "col2",
+                "type": "string",
+                "sticky": true,
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "VmInfo",
+                "name": "col3",
+                "type": "string",
+                "sticky": true,
+                "optional": true
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "6429c595-3487-420f-a535-224d9a95756c"
+      },
+      {
+        "number": 2,
+        "keyword": "if",
+        "dynamicPickListSelection": {
+        },
+        "toggleCfg": {
+        },
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "equals_to",
+              "lhs": "#{_('data.lookup_table.4e2366a6.entries.first.____Size', 'list_meta', '____Size', 'data.lookup_table.4e2366a6.entries')}",
+              "rhs": "0",
+              "uuid": "condition-80f31988-e727-4a33-a427-138b561e7d86"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 3,
+            "keyword": "if",
+            "dynamicPickListSelection": {
+            },
+            "toggleCfg": {
+            },
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "blank",
+                  "lhs": "#{_('data.slack_bot.ce200d10.context.trigger_id')}",
+                  "rhs": "",
+                  "uuid": "condition-ae99a33e-1c30-4f7f-a30f-489db9bb8426"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 4,
+                "provider": "slack_bot",
+                "name": "post_bot_reply_v2",
+                "as": "f5e8dc4f",
+                "title": null,
+                "description": null,
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                  "attachment_buttons.0.bot_command": false
+                },
+                "input": {
+                  "attachment_buttons": [
+                    {
+                      "title": "Build Your First VM",
+                      "bot_command": "#{_('data.workato.job_context.recipe_id')}"
+                    }
+                  ]
+                },
+                "visible_config_fields": [
+                  "blocks",
+                  "blocks.block_type",
+                  "blocks.section_text",
+                  "blocks.image_url",
+                  "blocks.alt_text",
+                  "blocks.button_title",
+                  "blocks.url",
+                  "blocks.bot_command",
+                  "blocks.params",
+                  "blocks.style",
+                  "blocks.attachment_fields",
+                  "blocks.attachment_fields.value",
+                  "blocks.placeholder_text",
+                  "blocks.menu_type",
+                  "blocks.dynamic_menu_recipe",
+                  "blocks.field_name",
+                  "blocks.options",
+                  "blocks.options.title",
+                  "blocks.options.bot_command",
+                  "blocks.options.params",
+                  "blocks.options.init_value",
+                  "blocks.init_option",
+                  "blocks.initial_date",
+                  "blocks.options.value",
+                  "blocks.init_options",
+                  "blocks.image_title",
+                  "blocks.external_id",
+                  "blocks.elements",
+                  "blocks.elements.type",
+                  "blocks.elements.text",
+                  "blocks.elements.image_url",
+                  "blocks.elements.alt_text",
+                  "blocks.actions",
+                  "blocks.actions.type",
+                  "blocks.actions.button_title",
+                  "blocks.actions.url",
+                  "blocks.actions.bot_command",
+                  "blocks.actions.params",
+                  "blocks.actions.style",
+                  "blocks.actions.placeholder_text",
+                  "blocks.actions.initial_date",
+                  "blocks.actions.field_name",
+                  "blocks.actions.options",
+                  "blocks.actions.options.params",
+                  "blocks.actions.menu_type",
+                  "blocks.actions.dynamic_menu_recipe",
+                  "blocks.objects",
+                  "blocks.objects.blocks",
+                  "blocks.objects.blocks.block_type",
+                  "blocks.objects.blocks.section_text",
+                  "blocks.objects.blocks.image_url",
+                  "blocks.objects.blocks.alt_text",
+                  "blocks.objects.blocks.button_title",
+                  "blocks.objects.blocks.url",
+                  "blocks.objects.blocks.bot_command",
+                  "blocks.objects.blocks.params",
+                  "blocks.objects.blocks.style",
+                  "blocks.objects.blocks.attachment_fields",
+                  "blocks.objects.blocks.attachment_fields.value",
+                  "blocks.objects.blocks.placeholder_text",
+                  "blocks.objects.blocks.menu_type",
+                  "blocks.objects.blocks.dynamic_menu_recipe",
+                  "blocks.objects.blocks.field_name",
+                  "blocks.objects.blocks.options",
+                  "blocks.objects.blocks.options.title",
+                  "blocks.objects.blocks.options.bot_command",
+                  "blocks.objects.blocks.options.params",
+                  "blocks.objects.blocks.options.init_value",
+                  "blocks.objects.blocks.init_option",
+                  "blocks.objects.blocks.initial_date",
+                  "blocks.objects.blocks.image_title",
+                  "blocks.objects.blocks.elements",
+                  "blocks.objects.blocks.elements.type",
+                  "blocks.objects.blocks.elements.text",
+                  "blocks.objects.blocks.elements.image_url",
+                  "blocks.objects.blocks.elements.alt_text",
+                  "blocks.objects.blocks.actions",
+                  "blocks.objects.blocks.actions.type",
+                  "blocks.objects.blocks.actions.button_title",
+                  "blocks.objects.blocks.actions.url",
+                  "blocks.objects.blocks.actions.bot_command",
+                  "blocks.objects.blocks.actions.params",
+                  "blocks.objects.blocks.actions.style",
+                  "blocks.objects.blocks.actions.placeholder_text",
+                  "blocks.objects.blocks.actions.initial_date",
+                  "blocks.objects.blocks.actions.field_name",
+                  "blocks.objects.blocks.actions.options",
+                  "blocks.objects.blocks.actions.options.params",
+                  "blocks.objects.blocks.actions.menu_type",
+                  "blocks.objects.blocks.actions.dynamic_menu_recipe",
+                  "text",
+                  "message.title",
+                  "message.title_link",
+                  "message.attachment_text",
+                  "message.color",
+                  "attachment_fields",
+                  "attachment_buttons",
+                  "attachment_ERICms.message.title",
+                  "attachment_ERICms.message.title_link",
+                  "attachment_ERICms.message.attachment_text",
+                  "attachment_ERICms.message.color",
+                  "attachment_ERICms.attachment_fields",
+                  "attachment_ERICms.attachment_buttons",
+                  "attachment_buttons.params",
+                  "attachment_buttons.bot_command",
+                  "attachment_buttons.title"
+                ],
+                "uuid": "6153c72b-3373-4748-bb73-e8cdcf1c90c0"
+              },
+              {
+                "number": 5,
+                "keyword": "stop",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "stop_with_error": "false"
+                },
+                "uuid": "8cc8e637-20aa-4fab-a857-1c49e2b97d7b"
+              }
+            ],
+            "uuid": "642d3ce7-3db2-46ac-9c78-09a0aa23120a"
+          },
+          {
+            "number": 6,
+            "provider": "workato_variable",
+            "name": "declare_variable",
+            "as": "d0815c4e",
+            "title": "  Create variable Modal Action Type",
+            "description": "Create variable <span class=\"provider\">Modal Action Type</span>",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+            },
+            "toggleCfg": {
+            },
+            "input": {
+              "variables": {
+                "schema": "[{\"name\":\"modal_action_type\",\"type\":\"string\",\"optional\":true,\"label\":\"Modal Action Type\",\"control_type\":\"text\"}]",
+                "data": {
+                  "modal_action_type": "open"
+                }
+              }
+            },
+            "extended_output_schema": [
+              {
+                "control_type": "text",
+                "label": "Modal Action Type",
+                "name": "modal_action_type",
+                "optional": true,
+                "type": "string"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "add_field_label": "Add a variable",
+                "control_type": "form-schema-builder",
+                "empty_schema_title": "Add variables by giving them a name, type and default value",
+                "exclude_fields": [
+                  "hint"
+                ],
+                "ERICm_label": "variable",
+                "label": "Variables",
+                "mark_as_required": true,
+                "name": "variables",
+                "ngIf": "!input.name",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Schema",
+                    "extends_schema": true,
+                    "broadcast_change_event": true,
+                    "type": "string",
+                    "name": "schema"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Modal Action Type",
+                        "name": "modal_action_type",
+                        "type": "string",
+                        "optional": true,
+                        "hint": "Defaults to nil if not supplied.",
+                        "sticky": true
+                      }
+                    ],
+                    "label": "Data",
+                    "type": "object",
+                    "name": "data"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "visible_config_fields": [
+              "variables.data.modal_action_type"
+            ],
+            "uuid": "1b7fb2e9-9d8f-4ea6-8591-ca8312f5f4cb"
+          },
+          {
+            "number": 7,
+            "keyword": "if",
+            "dynamicPickListSelection": {
+            },
+            "toggleCfg": {
+            },
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "present",
+                  "lhs": "=_('data.slack_bot.ce200d10.context.modals')",
+                  "rhs": "",
+                  "uuid": "condition-1c209f56-48a3-4ed2-856c-c5055357c317"
+                },
+                {
+                  "operand": "is_true",
+                  "lhs": "=_('data.slack_bot.ce200d10.context.modals')['view_submission']",
+                  "rhs": "",
+                  "uuid": "condition-55836d50-aaca-4fbf-9adf-31bfb9443562"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 8,
+                "provider": "workato_variable",
+                "name": "update_variables",
+                "as": "94ba701c",
+                "title": null,
+                "description": "Update variables <span class=\"provider\">Modal Action Type</span>",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "name": [
+                    {
+                      "label": "Modal Action Type (step 6)",
+                      "value": "1b7fb2e9-9d8f-4ea6-8591-ca8312f5f4cb:d0815c4e:modal_action_type"
+                    }
+                  ]
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "name": "1b7fb2e9-9d8f-4ea6-8591-ca8312f5f4cb:d0815c4e:modal_action_type",
+                  "modal_action_type": "update"
+                },
+                "extended_input_schema": [
+                  {
+                    "control_type": "text",
+                    "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                    "label": "Modal Action Type",
+                    "name": "modal_action_type",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "strip_interpolation": true
+                  }
+                ],
+                "uuid": "421799ea-cdcb-4a0a-8ba2-13d15505584f"
+              },
+              {
+                "number": 9,
+                "provider": "workato_variable",
+                "name": "declare_list",
+                "as": "531e8325",
+                "title": " Create Form Error list",
+                "description": "Create <span class=\"provider\">Form Error</span> list",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "name": "Form Error",
+                  "list_ERICm_schema_json": "[{\"name\":\"error\",\"type\":\"string\",\"optional\":true,\"control_type\":\"text\"}]"
+                },
+                "extended_output_schema": [
+                  {
+                    "hint": "",
+                    "label": "Form Error",
+                    "name": "list_ERICms",
+                    "of": "object",
+                    "optional": false,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Error",
+                        "name": "error",
+                        "type": "string",
+                        "optional": true
+                      }
+                    ],
+                    "type": "array"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "hint": "Set the initial ERICms in the list. Defaults to an empty list if not supplied.",
+                    "label": "ERICms",
+                    "name": "list_ERICms",
+                    "of": "object",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Error",
+                        "name": "error",
+                        "type": "string",
+                        "optional": true
+                      }
+                    ],
+                    "type": "array"
+                  }
+                ],
+                "uuid": "b7916f8c-9937-43fb-a492-30ede3f7175d"
+              },
+              {
+                "number": 10,
+                "provider": "slack_bot",
+                "name": "post_bot_reply_v2",
+                "as": "369bce96",
+                "title": null,
+                "description": null,
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "text": "Thank you! Automation is processing your New VM request.. Please check the info for status"
+                },
+                "uuid": "7797d067-ff8f-4ad9-ac0c-8b902df9b826"
+              }
+            ],
+            "uuid": "069c8096-1582-4567-9c65-2b9517c0a66d"
+          },
+          {
+            "number": 11,
+            "keyword": "if",
+            "dynamicPickListSelection": {
+            },
+            "toggleCfg": {
+            },
+            "input": {
+              "type": "compound",
+              "operand": "or",
+              "conditions": [
+                {
+                  "operand": "equals_to",
+                  "lhs": "#{_('data.workato_variable.d0815c4e.modal_action_type')}",
+                  "rhs": "open",
+                  "uuid": "condition-da17d0f3-4897-4256-97fb-486a1376e9b2"
+                },
+                {
+                  "operand": "present",
+                  "lhs": "#{_('data.workato_variable.531e8325.list_ERICms.first.error')}",
+                  "rhs": "",
+                  "uuid": "condition-7c57df36-ca41-4fb2-a55d-e341bcfdb691"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 12,
+                "provider": "onprem_command_line_scripts",
+                "name": "execute_script",
+                "as": "e2083608",
+                "title": null,
+                "description": "Execute <span class=\"provider\">get-template</span> script",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "script_id": "get-template"
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "script_id": "vm_template",
+                  "background": "false",
+                  "timeout": "2"
+                },
+                "visible_config_fields": [
+                  "script_id",
+                  "background"
+                ],
+                "uuid": "26e7bb01-5fdd-4f36-af3c-c5d01160c3e4"
+              },
+              {
+                "number": 13,
+                "provider": "workato_variable",
+                "name": "declare_list",
+                "as": "f49ed8d2",
+                "title": " Create Input Templates list",
+                "description": "Create <span class=\"provider\">Input Templates</span> list",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "name": "Input Templates",
+                  "list_ERICm_schema_json": "[{\"name\":\"Value\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\"}]"
+                },
+                "extended_output_schema": [
+                  {
+                    "hint": "",
+                    "label": "Input Templates",
+                    "name": "list_ERICms",
+                    "of": "object",
+                    "optional": false,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "name": "Value",
+                        "type": "string",
+                        "optional": false
+                      }
+                    ],
+                    "type": "array"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "hint": "Set the initial ERICms in the list. Defaults to an empty list if not supplied.",
+                    "label": "ERICms",
+                    "name": "list_ERICms",
+                    "of": "object",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "name": "Value",
+                        "type": "string",
+                        "optional": false
+                      }
+                    ],
+                    "type": "array"
+                  }
+                ],
+                "uuid": "889c4991-1d26-432b-9f3e-4f666754e673"
+              },
+              {
+                "number": 14,
+                "provider": "workato_list",
+                "name": "create_list",
+                "as": "28a45cd5",
+                "title": null,
+                "description": null,
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "size": "=_('data.onprem_command_line_scripts.e2083608.system_out').split(\"\\n\").length"
+                },
+                "uuid": "1cbca08a-017c-494f-ae0e-b3966ceba3d8"
+              },
+              {
+                "number": 15,
+                "as": "f6ef1ff1",
+                "keyword": "foreach",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "repeat_mode": "simple",
+                "clear_scope": "false",
+                "input": {
+                },
+                "block": [
+                  {
+                    "number": 16,
+                    "provider": "workato_variable",
+                    "name": "insert_to_list",
+                    "as": "f93bd39b",
+                    "title": "Add ERICm to Input Templates list",
+                    "description": "Add <span class=\"provider\">ERICm</span> to <span class=\"provider\">Input Templates</span> list",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "name": "Input Templates (step 12)"
+                    },
+                    "toggleCfg": {
+                    },
+                    "input": {
+                      "location": "end",
+                      "name": "889c4991-1d26-432b-9f3e-4f666754e673:f49ed8d2",
+                      "list_ERICm": {
+                        "Value": "=_('data.onprem_command_line_scripts.e2083608.system_out').split(\"\\n\")[_('data.foreach.f6ef1ff1.index', 'foreach_meta')]"
+                      }
+                    },
+                    "extended_input_schema": [
+                      {
+                        "hint": "",
+                        "label": "List ERICm",
+                        "name": "list_ERICm",
+                        "optional": false,
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Value",
+                            "name": "Value",
+                            "type": "string",
+                            "optional": false
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ],
+                    "uuid": "5be3d9e6-8334-4957-8a74-4a4118825de9"
+                  }
+                ],
+                "source": "#{_('data.workato_list.28a45cd5.list')}",
+                "uuid": "a9135029-ab66-48d0-9bb3-efb3287705e9"
+              },
+              {
+                "number": 17,
+                "provider": "slack_bot",
+                "name": "block_kit_modals",
+                "as": "8fd61c48",
+                "title": null,
+                "description": "Open/update or push a <span class=\"provider\">modal view</span> as <span class=\"provider\">Slack Workbot</span>",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                  "modal_action_type": false,
+                  "view.submit_view.bot_command": false,
+                  "view.blocks.1.options.init_value": true
+                },
+                "input": {
+                  "modal_action_type": "#{_('data.workato_variable.d0815c4e.modal_action_type')}",
+                  "trigger_id": "#{_('data.slack_bot.ce200d10.context.trigger_id')}",
+                  "view": {
+                    "modal_title": "ERIC VMware Self Service",
+                    "blocks": [
+                      {
+                        "block_type": "section_with_text",
+                        "section_text": "\\= Welcome to ERIC Automation build your first VM here =="
+                      },
+                      {
+                        "block_type": "select_menu_input",
+                        "label_text": "Input Template",
+                        "block_id": "ntemplate",
+                        "placeholder_text": "Choose One",
+                        "menu_type": "static_select",
+                        "options": {
+                          "____source": "#{_('data.workato_variable.f49ed8d2.list_ERICms')}",
+                          "title": "#{_('data.workato_variable.f49ed8d2.list_ERICms.first.Value')}",
+                          "value": "#{_('data.workato_variable.f49ed8d2.list_ERICms.first.Value')}",
+                          "init_value": "true"
+                        }
+                      },
+                      {
+                        "block_type": "plain_text_input",
+                        "label_text": "Add Your New VM Name (Avoid using space characters)",
+                        "block_id": "nvmname",
+                        "initial_value": "#{_('data.slack_bot.ce200d10.parameters.nvmname')}",
+                        "max_length": "10",
+                        "optional": "false"
+                      }
+                    ],
+                    "submit_view": {
+                      "bot_command": "#{_('data.workato.job_context.recipe_id')}",
+                      "submit_text": "Process VM Request",
+                      "close_text": "Cancel",
+                      "continue_flow": "false"
+                    }
+                  }
+                },
+                "uuid": "2507ece5-4100-4272-91be-140e08ca63c3"
+              },
+              {
+                "number": 18,
+                "keyword": "stop",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "stop_with_error": "false"
+                },
+                "uuid": "009d5de8-185f-47d1-bfe0-3d445a01ba70"
+              }
+            ],
+            "uuid": "4d54a019-46bd-4618-acef-d593f6f827a2"
+          },
+          {
+            "number": 19,
+            "provider": "lookup_table",
+            "name": "add_entry",
+            "as": "d7818bbe",
+            "title": null,
+            "description": "\n      Add\n      <span class=\"provider\">entry</span>\n      to\n      <span class=\"provider\">ERIC-VMware-db</span>\n      lookup table\n    ",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "lookup_table_id": "ERIC-VMware-db"
+            },
+            "toggleCfg": {
+            },
+            "input": {
+              "lookup_table_id": {
+                "zip_name": "ERIC_vmware_db.lookup_table.json",
+                "name": "ERIC-VMware-db",
+                "folder": ""
+              },
+              "parameters": {
+                "col2": "#{_('data.slack_bot.ce200d10.context.user_email')}",
+                "col3": "=_('data.slack_bot.ce200d10.context.user_handle').gsub(\".\",blank)+_('data.slack_bot.ce200d10.parameters.nvmname').gsub(\" \",\"\").gsub(\"  \",\"\").gsub(\"  \",\"\").strip"
+              }
+            },
+            "extended_output_schema": [
+              {
+                "control_type": "number",
+                "label": "Entry ID",
+                "name": "id",
+                "parse_output": "integer_conversion",
+                "type": "integer"
+              },
+              {
+                "label": "Entry",
+                "name": "entry",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "UserAccount",
+                    "name": "col2",
+                    "type": "string",
+                    "sticky": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "VmInfo",
+                    "name": "col3",
+                    "type": "string",
+                    "sticky": true
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "hint": "Fill the fields for the new entry",
+                "label": "Entry fields",
+                "name": "parameters",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "UserAccount",
+                    "name": "col2",
+                    "type": "string",
+                    "sticky": true,
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "VmInfo",
+                    "name": "col3",
+                    "type": "string",
+                    "sticky": true,
+                    "optional": true
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "uuid": "a5bae627-1550-4a79-9177-b2176a5aa06e"
+          },
+          {
+            "number": 20,
+            "provider": "onprem_command_line_scripts",
+            "name": "execute_script",
+            "as": "6df7239b",
+            "title": null,
+            "description": "Execute <span class=\"provider\">new-vm</span> script",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "script_id": "new-vm"
+            },
+            "toggleCfg": {
+            },
+            "input": {
+              "script_id": "vm_build",
+              "parameters": {
+                "Nvmname": "=_('data.slack_bot.ce200d10.context.user_handle').gsub(\".\",blank)+_('data.slack_bot.ce200d10.parameters.nvmname').gsub(\" \",\"\").gsub(\"  \",\"\").gsub(\"  \",\"\").strip",
+                "Ntemplate": "#{_('data.slack_bot.ce200d10.parameters.ntemplate')}"
+              },
+              "background": "true"
+            },
+            "extended_input_schema": [
+              {
+                "hint": "Provide value for script input",
+                "label": "Script input",
+                "name": "parameters",
+                "optional": false,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Nvmname",
+                    "name": "Nvmname",
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Ntemplate",
+                    "name": "Ntemplate",
+                    "type": "string"
+                  }
+                ],
+                "sticky": false,
+                "type": "object"
+              }
+            ],
+            "visible_config_fields": [
+              "script_id",
+              "background"
+            ],
+            "uuid": "a1bc2405-6f5e-4b96-82fc-9c7d793e8283"
+          },
+          {
+            "number": 21,
+            "keyword": "stop",
+            "dynamicPickListSelection": {
+            },
+            "toggleCfg": {
+            },
+            "input": {
+              "stop_with_error": "false"
+            },
+            "uuid": "13ea7e89-bc8d-417f-90dd-a278436ccde1"
+          }
+        ],
+        "uuid": "55378767-d95b-413f-8074-46ae8ae7e45b"
+      },
+      {
+        "number": 22,
+        "keyword": "if",
+        "dynamicPickListSelection": {
+        },
+        "toggleCfg": {
+        },
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "blank",
+              "lhs": "#{_('data.slack_bot.ce200d10.context.trigger_id')}",
+              "rhs": "",
+              "uuid": "condition-ae99a33e-1c30-4f7f-a30f-489db9bb8426"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 23,
+            "provider": "slack_bot",
+            "name": "post_bot_reply_v2",
+            "as": "3dd6bbce",
+            "title": null,
+            "description": null,
+            "keyword": "action",
+            "dynamicPickListSelection": {
+            },
+            "toggleCfg": {
+              "attachment_buttons.0.bot_command": false,
+              "attachment_buttons.1.bot_command": false
+            },
+            "input": {
+              "attachment_buttons": [
+                {
+                  "title": "Build New VM",
+                  "bot_command": "#{_('data.workato.job_context.recipe_id')}",
+                  "params": "userchoice: buildVM"
+                },
+                {
+                  "title": "Manage VM",
+                  "bot_command": "#{_('data.workato.job_context.recipe_id')}",
+                  "params": "userchoice: manageVM"
+                }
+              ]
+            },
+            "visible_config_fields": [
+              "blocks",
+              "blocks.block_type",
+              "blocks.section_text",
+              "blocks.image_url",
+              "blocks.alt_text",
+              "blocks.button_title",
+              "blocks.url",
+              "blocks.bot_command",
+              "blocks.params",
+              "blocks.style",
+              "blocks.attachment_fields",
+              "blocks.attachment_fields.value",
+              "blocks.placeholder_text",
+              "blocks.menu_type",
+              "blocks.dynamic_menu_recipe",
+              "blocks.field_name",
+              "blocks.options",
+              "blocks.options.title",
+              "blocks.options.bot_command",
+              "blocks.options.params",
+              "blocks.options.init_value",
+              "blocks.init_option",
+              "blocks.initial_date",
+              "blocks.options.value",
+              "blocks.init_options",
+              "blocks.image_title",
+              "blocks.external_id",
+              "blocks.elements",
+              "blocks.elements.type",
+              "blocks.elements.text",
+              "blocks.elements.image_url",
+              "blocks.elements.alt_text",
+              "blocks.actions",
+              "blocks.actions.type",
+              "blocks.actions.button_title",
+              "blocks.actions.url",
+              "blocks.actions.bot_command",
+              "blocks.actions.params",
+              "blocks.actions.style",
+              "blocks.actions.placeholder_text",
+              "blocks.actions.initial_date",
+              "blocks.actions.field_name",
+              "blocks.actions.options",
+              "blocks.actions.options.params",
+              "blocks.actions.menu_type",
+              "blocks.actions.dynamic_menu_recipe",
+              "blocks.objects",
+              "blocks.objects.blocks",
+              "blocks.objects.blocks.block_type",
+              "blocks.objects.blocks.section_text",
+              "blocks.objects.blocks.image_url",
+              "blocks.objects.blocks.alt_text",
+              "blocks.objects.blocks.button_title",
+              "blocks.objects.blocks.url",
+              "blocks.objects.blocks.bot_command",
+              "blocks.objects.blocks.params",
+              "blocks.objects.blocks.style",
+              "blocks.objects.blocks.attachment_fields",
+              "blocks.objects.blocks.attachment_fields.value",
+              "blocks.objects.blocks.placeholder_text",
+              "blocks.objects.blocks.menu_type",
+              "blocks.objects.blocks.dynamic_menu_recipe",
+              "blocks.objects.blocks.field_name",
+              "blocks.objects.blocks.options",
+              "blocks.objects.blocks.options.title",
+              "blocks.objects.blocks.options.bot_command",
+              "blocks.objects.blocks.options.params",
+              "blocks.objects.blocks.options.init_value",
+              "blocks.objects.blocks.init_option",
+              "blocks.objects.blocks.initial_date",
+              "blocks.objects.blocks.image_title",
+              "blocks.objects.blocks.elements",
+              "blocks.objects.blocks.elements.type",
+              "blocks.objects.blocks.elements.text",
+              "blocks.objects.blocks.elements.image_url",
+              "blocks.objects.blocks.elements.alt_text",
+              "blocks.objects.blocks.actions",
+              "blocks.objects.blocks.actions.type",
+              "blocks.objects.blocks.actions.button_title",
+              "blocks.objects.blocks.actions.url",
+              "blocks.objects.blocks.actions.bot_command",
+              "blocks.objects.blocks.actions.params",
+              "blocks.objects.blocks.actions.style",
+              "blocks.objects.blocks.actions.placeholder_text",
+              "blocks.objects.blocks.actions.initial_date",
+              "blocks.objects.blocks.actions.field_name",
+              "blocks.objects.blocks.actions.options",
+              "blocks.objects.blocks.actions.options.params",
+              "blocks.objects.blocks.actions.menu_type",
+              "blocks.objects.blocks.actions.dynamic_menu_recipe",
+              "text",
+              "message.title",
+              "message.title_link",
+              "message.attachment_text",
+              "message.color",
+              "attachment_fields",
+              "attachment_buttons",
+              "attachment_ERICms.message.title",
+              "attachment_ERICms.message.title_link",
+              "attachment_ERICms.message.attachment_text",
+              "attachment_ERICms.message.color",
+              "attachment_ERICms.attachment_fields",
+              "attachment_ERICms.attachment_buttons",
+              "attachment_ERICms.attachment_buttons.params",
+              "attachment_ERICms.attachment_buttons.bot_command",
+              "attachment_ERICms.attachment_buttons.title",
+              "attachment_buttons.params",
+              "attachment_buttons.bot_command",
+              "attachment_buttons.title"
+            ],
+            "uuid": "ff15400b-cb5d-4fb5-b351-6174b3d5405e"
+          },
+          {
+            "number": 24,
+            "keyword": "stop",
+            "dynamicPickListSelection": {
+            },
+            "toggleCfg": {
+            },
+            "input": {
+              "stop_with_error": "false"
+            },
+            "uuid": "939da2e2-a333-4192-9adb-fe7bebf7cdcb"
+          }
+        ],
+        "uuid": "5c8771b5-1b70-4ab1-a55c-8af05fb4974e"
+      },
+      {
+        "number": 25,
+        "provider": "workato_variable",
+        "name": "declare_variable",
+        "as": "c0147223",
+        "title": "  Create variable Modal Action Type",
+        "description": "Create variable <span class=\"provider\">Modal Action Type</span>",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+        },
+        "toggleCfg": {
+        },
+        "input": {
+          "variables": {
+            "schema": "[{\"name\":\"modal_action_type\",\"type\":\"string\",\"optional\":true,\"label\":\"Modal Action Type\",\"control_type\":\"text\"}]",
+            "data": {
+              "modal_action_type": "open"
+            }
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "text",
+            "label": "Modal Action Type",
+            "name": "modal_action_type",
+            "optional": true,
+            "type": "string"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "add_field_label": "Add a variable",
+            "control_type": "form-schema-builder",
+            "empty_schema_title": "Add variables by giving them a name, type and default value",
+            "exclude_fields": [
+              "hint"
+            ],
+            "ERICm_label": "variable",
+            "label": "Variables",
+            "mark_as_required": true,
+            "name": "variables",
+            "ngIf": "!input.name",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "broadcast_change_event": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Modal Action Type",
+                    "name": "modal_action_type",
+                    "type": "string",
+                    "optional": true,
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true
+                  }
+                ],
+                "label": "Data",
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "variables.data.modal_action_type"
+        ],
+        "uuid": "cb84c0fe-0df8-4abf-a9c5-d2c0e35e3f01"
+      },
+      {
+        "number": 26,
+        "keyword": "if",
+        "dynamicPickListSelection": {
+        },
+        "toggleCfg": {
+        },
+        "input": {
+          "type": "compound",
+          "operand": "or",
+          "conditions": [
+            {
+              "operand": "equals_to",
+              "lhs": "#{_('data.slack_bot.ce200d10.parameters.userchoice')}",
+              "rhs": "buildVM",
+              "uuid": "condition-55ee2eb0-7fad-4b02-a53b-8dde4ecff98e"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 27,
+            "keyword": "if",
+            "dynamicPickListSelection": {
+            },
+            "toggleCfg": {
+            },
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "present",
+                  "lhs": "=_('data.slack_bot.ce200d10.context.modals')",
+                  "rhs": "",
+                  "uuid": "condition-1c209f56-48a3-4ed2-856c-c5055357c317"
+                },
+                {
+                  "operand": "is_true",
+                  "lhs": "=_('data.slack_bot.ce200d10.context.modals')['view_submission']",
+                  "rhs": "",
+                  "uuid": "condition-55836d50-aaca-4fbf-9adf-31bfb9443562"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 28,
+                "provider": "workato_variable",
+                "name": "update_variables",
+                "as": "65dbc718",
+                "title": null,
+                "description": "Update variables <span class=\"provider\">Modal Action Type</span>",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "name": [
+                    {
+                      "label": "Modal Action Type (step 26)",
+                      "value": "cb84c0fe-0df8-4abf-a9c5-d2c0e35e3f01:c0147223:modal_action_type"
+                    }
+                  ]
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "name": "cb84c0fe-0df8-4abf-a9c5-d2c0e35e3f01:c0147223:modal_action_type",
+                  "modal_action_type": "update"
+                },
+                "extended_input_schema": [
+                  {
+                    "control_type": "text",
+                    "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                    "label": "Modal Action Type",
+                    "name": "modal_action_type",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "strip_interpolation": true
+                  }
+                ],
+                "uuid": "c572999e-fd87-4860-a9f6-63ca5020ce6d"
+              },
+              {
+                "number": 29,
+                "provider": "workato_variable",
+                "name": "declare_list",
+                "as": "cf25f71a",
+                "title": " Create Form Error list",
+                "description": "Create <span class=\"provider\">Form Error</span> list",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "name": "Form Error",
+                  "list_ERICm_schema_json": "[{\"name\":\"error\",\"type\":\"string\",\"optional\":true,\"control_type\":\"text\"}]"
+                },
+                "extended_output_schema": [
+                  {
+                    "hint": "",
+                    "label": "Form Error",
+                    "name": "list_ERICms",
+                    "of": "object",
+                    "optional": false,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Error",
+                        "name": "error",
+                        "type": "string",
+                        "optional": true
+                      }
+                    ],
+                    "type": "array"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "hint": "Set the initial ERICms in the list. Defaults to an empty list if not supplied.",
+                    "label": "ERICms",
+                    "name": "list_ERICms",
+                    "of": "object",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Error",
+                        "name": "error",
+                        "type": "string",
+                        "optional": true
+                      }
+                    ],
+                    "type": "array"
+                  }
+                ],
+                "uuid": "4eb20f9a-a3c6-4b7c-80df-cb5fe2795110"
+              },
+              {
+                "number": 30,
+                "provider": "slack_bot",
+                "name": "post_bot_reply_v2",
+                "as": "27279cab",
+                "title": null,
+                "description": "Post <span class=\"provider\">command reply</span> as <span class=\"provider\">Slack Workbot</span>",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "text": "Thank you! ERIC Automation is processing your VM request. Please wait.."
+                },
+                "uuid": "a488068a-dfcf-4892-bdc7-df9c68530c11"
+              }
+            ],
+            "uuid": "c8adc325-87d5-4657-9c8e-76276794b373"
+          },
+          {
+            "number": 31,
+            "keyword": "if",
+            "dynamicPickListSelection": {
+            },
+            "toggleCfg": {
+            },
+            "input": {
+              "type": "compound",
+              "operand": "or",
+              "conditions": [
+                {
+                  "operand": "equals_to",
+                  "lhs": "#{_('data.workato_variable.c0147223.modal_action_type')}",
+                  "rhs": "open",
+                  "uuid": "condition-da17d0f3-4897-4256-97fb-486a1376e9b2"
+                },
+                {
+                  "operand": "present",
+                  "lhs": "#{_('data.workato_variable.cf25f71a.list_ERICms.first.error')}",
+                  "rhs": "",
+                  "uuid": "condition-7c57df36-ca41-4fb2-a55d-e341bcfdb691"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 32,
+                "provider": "onprem_command_line_scripts",
+                "name": "execute_script",
+                "as": "c46b12a9",
+                "title": null,
+                "description": "Execute <span class=\"provider\">get-template</span> script",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "script_id": "get-template"
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "script_id": "vm_template"
+                },
+                "uuid": "0c3719bd-3912-49a2-8f27-7258d7714e97"
+              },
+              {
+                "number": 33,
+                "provider": "workato_variable",
+                "name": "declare_list",
+                "as": "a9e29ead",
+                "title": " Create Input Templates list",
+                "description": "Create <span class=\"provider\">Input Templates</span> list",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "name": "Input Templates",
+                  "list_ERICm_schema_json": "[{\"name\":\"Value\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\"}]"
+                },
+                "extended_output_schema": [
+                  {
+                    "hint": "",
+                    "label": "Input Templates",
+                    "name": "list_ERICms",
+                    "of": "object",
+                    "optional": false,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "name": "Value",
+                        "type": "string",
+                        "optional": false
+                      }
+                    ],
+                    "type": "array"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "hint": "Set the initial ERICms in the list. Defaults to an empty list if not supplied.",
+                    "label": "ERICms",
+                    "name": "list_ERICms",
+                    "of": "object",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "name": "Value",
+                        "type": "string",
+                        "optional": false
+                      }
+                    ],
+                    "type": "array"
+                  }
+                ],
+                "uuid": "0c972952-0adb-4321-a267-132e0fa9ed6e"
+              },
+              {
+                "number": 34,
+                "provider": "workato_list",
+                "name": "create_list",
+                "as": "a864ef39",
+                "title": null,
+                "description": null,
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "size": "=_('data.onprem_command_line_scripts.c46b12a9.system_out').split(\"\\n\").length"
+                },
+                "uuid": "19f67b47-3472-4ee3-b770-c160306fbec6"
+              },
+              {
+                "number": 35,
+                "as": "97a48e71",
+                "keyword": "foreach",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "repeat_mode": "simple",
+                "clear_scope": "false",
+                "input": {
+                },
+                "block": [
+                  {
+                    "number": 36,
+                    "provider": "workato_variable",
+                    "name": "insert_to_list",
+                    "as": "1fd1d0b3",
+                    "title": "Add ERICm to Input Templates list",
+                    "description": "Add <span class=\"provider\">ERICm</span> to <span class=\"provider\">Input Templates</span> list",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "name": "Input Templates (step 34)"
+                    },
+                    "toggleCfg": {
+                    },
+                    "input": {
+                      "location": "end",
+                      "name": "0c972952-0adb-4321-a267-132e0fa9ed6e:a9e29ead",
+                      "list_ERICm": {
+                        "Value": "=_('data.onprem_command_line_scripts.c46b12a9.system_out').split(\"\\n\")[_('data.foreach.97a48e71.index', 'foreach_meta')]"
+                      }
+                    },
+                    "extended_input_schema": [
+                      {
+                        "hint": "",
+                        "label": "List ERICm",
+                        "name": "list_ERICm",
+                        "optional": false,
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Value",
+                            "name": "Value",
+                            "type": "string",
+                            "optional": false
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ],
+                    "uuid": "f1ab6b17-7bbd-4146-8993-f6e3599b0282"
+                  }
+                ],
+                "source": "#{_('data.workato_list.a864ef39.list')}",
+                "uuid": "2c1c025d-6688-4bea-99ad-cc266a5dcd19"
+              },
+              {
+                "number": 37,
+                "provider": "slack_bot",
+                "name": "block_kit_modals",
+                "as": "baa1700a",
+                "title": null,
+                "description": "Open/update or push a <span class=\"provider\">modal view</span> as <span class=\"provider\">Slack Workbot</span>",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                  "modal_action_type": false,
+                  "view.submit_view.bot_command": false,
+                  "view.blocks.2.options.init_value": true
+                },
+                "input": {
+                  "modal_action_type": "#{_('data.workato_variable.c0147223.modal_action_type')}",
+                  "trigger_id": "#{_('data.slack_bot.ce200d10.context.trigger_id')}",
+                  "view": {
+                    "modal_title": "ERIC VMware Self Service",
+                    "blocks": [
+                      {
+                        "block_type": "section_with_text",
+                        "section_text": "\\= Welcome to ERIC Automation build More VM  =="
+                      },
+                      {
+                        "block_type": "section_with_text",
+                        "section_text": "New VM templates available! \nDebian-9-0\nDebian-8-0\nRaspbian-8-Jessie"
+                      },
+                      {
+                        "block_type": "select_menu_input",
+                        "label_text": "Input Template",
+                        "block_id": "ntemplate",
+                        "placeholder_text": "Choose One",
+                        "menu_type": "static_select",
+                        "options": {
+                          "____source": "#{_('data.workato_variable.a9e29ead.list_ERICms')}",
+                          "title": "#{_('data.workato_variable.a9e29ead.list_ERICms.first.Value')}",
+                          "value": "#{_('data.workato_variable.a9e29ead.list_ERICms.first.Value')}",
+                          "init_value": "true"
+                        },
+                        "optional": "false"
+                      },
+                      {
+                        "block_type": "plain_text_input",
+                        "label_text": "Add Your New VM Name (Avoid using space characters)",
+                        "block_id": "nvmname",
+                        "initial_value": "#{_('data.slack_bot.ce200d10.parameters.nvmname')}",
+                        "optional": "false",
+                        "max_length": "10"
+                      }
+                    ],
+                    "submit_view": {
+                      "bot_command": "#{_('data.workato.job_context.recipe_id')}",
+                      "submit_text": "Process VM Request",
+                      "close_text": "Cancel",
+                      "params": "userchoice: buildVM",
+                      "continue_flow": "false"
+                    }
+                  }
+                },
+                "uuid": "e172d30e-e511-40dc-9541-feb0ece599b5"
+              },
+              {
+                "number": 38,
+                "keyword": "stop",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "stop_with_error": "false"
+                },
+                "uuid": "e319271a-3539-47d3-bd77-8346567983e9"
+              }
+            ],
+            "uuid": "52cc6397-da28-41ab-a93d-c161cf48f20f"
+          },
+          {
+            "number": 39,
+            "provider": "lookup_table",
+            "name": "search_entries",
+            "as": "7826512b",
+            "title": null,
+            "description": "\n      Search\n      <span class=\"provider\">entries</span>\n      in\n      <span class=\"provider\">ERIC-VMware-db</span>\n      lookup table\n    ",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "lookup_table_id": "ERIC-VMware-db"
+            },
+            "toggleCfg": {
+            },
+            "input": {
+              "lookup_table_id": {
+                "zip_name": "ERIC_vmware_db.lookup_table.json",
+                "name": "ERIC-VMware-db",
+                "folder": ""
+              },
+              "parameters": {
+                "col2": "#{_('data.slack_bot.ce200d10.context.user_email')}"
+              }
+            },
+            "extended_output_schema": [
+              {
+                "label": "Entries",
+                "name": "entries",
+                "of": "object",
+                "properties": [
+                  {
+                    "control_type": "number",
+                    "label": "Entry ID",
+                    "parse_output": "integer_conversion",
+                    "type": "integer",
+                    "name": "id"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "UserAccount",
+                        "name": "col2",
+                        "type": "string",
+                        "sticky": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "VmInfo",
+                        "name": "col3",
+                        "type": "string",
+                        "sticky": true
+                      }
+                    ],
+                    "label": "Entry",
+                    "type": "object",
+                    "name": "entry"
+                  }
+                ],
+                "type": "array"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "hint": "Provide one or more entry fields to search the entry",
+                "label": "Search by",
+                "name": "parameters",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "UserAccount",
+                    "name": "col2",
+                    "type": "string",
+                    "sticky": true,
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "VmInfo",
+                    "name": "col3",
+                    "type": "string",
+                    "sticky": true,
+                    "optional": true
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "uuid": "84d1dc2a-e6ed-4a22-8b8d-16d20d669d98"
+          },
+          {
+            "number": 40,
+            "keyword": "if",
+            "dynamicPickListSelection": {
+            },
+            "toggleCfg": {
+            },
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "greater_than",
+                  "lhs": "#{_('data.lookup_table.7826512b.entries.first.____Size', 'list_meta', '____Size', 'data.lookup_table.7826512b.entries')}",
+                  "rhs": "9",
+                  "uuid": "condition-468c9aec-8e9f-4f29-80c3-91ca51dfb136"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 41,
+                "provider": "slack_bot",
+                "name": "post_bot_reply_v2",
+                "as": "6a69d196",
+                "title": null,
+                "description": null,
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "text": "You exceed the number of allowable VM to build."
+                },
+                "uuid": "31802e8b-3e0e-49cc-822f-70713249ca9e"
+              },
+              {
+                "number": 42,
+                "keyword": "stop",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "stop_with_error": "false"
+                },
+                "uuid": "f7cb3c72-c25a-48bc-972e-21060b8cf14b"
+              }
+            ],
+            "uuid": "25520e58-1416-4827-b515-7d63a1dc4fea"
+          },
+          {
+            "number": 43,
+            "provider": "lookup_table",
+            "name": "search_entries",
+            "as": "bfac417e",
+            "title": null,
+            "description": "\n      Search\n      <span class=\"provider\">entries</span>\n      in\n      <span class=\"provider\">ERIC-VMware-db</span>\n      lookup table\n    ",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "lookup_table_id": "ERIC-VMware-db"
+            },
+            "toggleCfg": {
+            },
+            "input": {
+              "lookup_table_id": {
+                "zip_name": "ERIC_vmware_db.lookup_table.json",
+                "name": "ERIC-VMware-db",
+                "folder": ""
+              },
+              "parameters": {
+                "col2": "#{_('data.slack_bot.ce200d10.context.user_email')}",
+                "col3": "=_('data.slack_bot.ce200d10.context.user_handle').gsub(\".\",blank)+_('data.slack_bot.ce200d10.parameters.nvmname').gsub(\" \",\"\").gsub(\"  \",\"\").gsub(\"  \",\"\").strip"
+              }
+            },
+            "extended_output_schema": [
+              {
+                "label": "Entries",
+                "name": "entries",
+                "of": "object",
+                "properties": [
+                  {
+                    "control_type": "number",
+                    "label": "Entry ID",
+                    "parse_output": "integer_conversion",
+                    "type": "integer",
+                    "name": "id"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "UserAccount",
+                        "name": "col2",
+                        "type": "string",
+                        "sticky": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "VmInfo",
+                        "name": "col3",
+                        "type": "string",
+                        "sticky": true
+                      }
+                    ],
+                    "label": "Entry",
+                    "type": "object",
+                    "name": "entry"
+                  }
+                ],
+                "type": "array"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "hint": "Provide one or more entry fields to search the entry",
+                "label": "Search by",
+                "name": "parameters",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "UserAccount",
+                    "name": "col2",
+                    "type": "string",
+                    "sticky": true,
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "VmInfo",
+                    "name": "col3",
+                    "type": "string",
+                    "sticky": true,
+                    "optional": true
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "uuid": "5e88443a-350b-4de7-ade2-cc321152f2bd"
+          },
+          {
+            "number": 44,
+            "keyword": "if",
+            "dynamicPickListSelection": {
+            },
+            "toggleCfg": {
+            },
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "greater_than",
+                  "lhs": "#{_('data.lookup_table.bfac417e.entries.first.____Size', 'list_meta', '____Size', 'data.lookup_table.bfac417e.entries')}",
+                  "rhs": "0",
+                  "uuid": "condition-fddf7373-c4f1-4869-a50e-fdc66301e040"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 45,
+                "provider": "slack_bot",
+                "name": "post_bot_reply_v2",
+                "as": "6295e660",
+                "title": null,
+                "description": null,
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "text": "VM Name already exist. Please use different name."
+                },
+                "uuid": "ba71dd0f-966e-4bf1-adab-bf90990bbfb3"
+              },
+              {
+                "number": 46,
+                "keyword": "stop",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "stop_with_error": "false"
+                },
+                "uuid": "a566757d-7fa0-4285-94be-097d273dc558"
+              }
+            ],
+            "uuid": "5f5fa4be-ce4c-4201-93e7-9e3d5f9209b3"
+          },
+          {
+            "number": 47,
+            "provider": "lookup_table",
+            "name": "add_entry",
+            "as": "ce4c129e",
+            "title": null,
+            "description": "\n      Add\n      <span class=\"provider\">entry</span>\n      to\n      <span class=\"provider\">ERIC-VMware-db</span>\n      lookup table\n    ",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "lookup_table_id": "ERIC-VMware-db"
+            },
+            "toggleCfg": {
+            },
+            "input": {
+              "lookup_table_id": {
+                "zip_name": "ERIC_vmware_db.lookup_table.json",
+                "name": "ERIC-VMware-db",
+                "folder": ""
+              },
+              "parameters": {
+                "col2": "#{_('data.slack_bot.ce200d10.context.user_email')}",
+                "col3": "=_('data.slack_bot.ce200d10.context.user_handle').gsub(\".\",blank)+_('data.slack_bot.ce200d10.parameters.nvmname').gsub(\" \",\"\").gsub(\"  \",\"\").gsub(\"  \",\"\").strip"
+              }
+            },
+            "extended_output_schema": [
+              {
+                "control_type": "number",
+                "label": "Entry ID",
+                "name": "id",
+                "parse_output": "integer_conversion",
+                "type": "integer"
+              },
+              {
+                "label": "Entry",
+                "name": "entry",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "UserAccount",
+                    "name": "col2",
+                    "type": "string",
+                    "sticky": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "VmInfo",
+                    "name": "col3",
+                    "type": "string",
+                    "sticky": true
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "hint": "Fill the fields for the new entry",
+                "label": "Entry fields",
+                "name": "parameters",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "UserAccount",
+                    "name": "col2",
+                    "type": "string",
+                    "sticky": true,
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "VmInfo",
+                    "name": "col3",
+                    "type": "string",
+                    "sticky": true,
+                    "optional": true
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "uuid": "daee8804-8535-404e-8951-f289729d8d5f"
+          },
+          {
+            "number": 48,
+            "provider": "onprem_command_line_scripts",
+            "name": "execute_script",
+            "as": "bd99f5b3",
+            "title": null,
+            "description": "Execute <span class=\"provider\">new-vm</span> script",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "script_id": "new-vm"
+            },
+            "toggleCfg": {
+            },
+            "input": {
+              "script_id": "vm_build",
+              "parameters": {
+                "Nvmname": "=_('data.slack_bot.ce200d10.context.user_handle').gsub(\".\",blank)+_('data.slack_bot.ce200d10.parameters.nvmname').gsub(\" \",\"\").gsub(\"  \",\"\").gsub(\"  \",\"\").strip",
+                "Ntemplate": "#{_('data.slack_bot.ce200d10.parameters.ntemplate')}"
+              },
+              "background": "true"
+            },
+            "extended_input_schema": [
+              {
+                "hint": "Provide value for script input",
+                "label": "Script input",
+                "name": "parameters",
+                "optional": false,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Nvmname",
+                    "name": "Nvmname",
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Ntemplate",
+                    "name": "Ntemplate",
+                    "type": "string"
+                  }
+                ],
+                "sticky": false,
+                "type": "object"
+              }
+            ],
+            "visible_config_fields": [
+              "script_id",
+              "parameters",
+              "parameters.Nvmname",
+              "parameters.Ntemplate",
+              "background"
+            ],
+            "uuid": "612ce14b-0409-475a-860d-f62ee5e08769"
+          },
+          {
+            "number": 49,
+            "keyword": "stop",
+            "dynamicPickListSelection": {
+            },
+            "toggleCfg": {
+            },
+            "input": {
+              "stop_with_error": "false"
+            },
+            "uuid": "aa340464-c09f-4553-a8ac-c23d93a73463"
+          }
+        ],
+        "uuid": "8553b2c3-f1f3-479b-a2e5-0dd2cffd7705"
+      },
+      {
+        "number": 50,
+        "keyword": "if",
+        "dynamicPickListSelection": {
+        },
+        "toggleCfg": {
+        },
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "equals_to",
+              "lhs": "#{_('data.slack_bot.ce200d10.parameters.userchoice')}",
+              "rhs": "manageVM",
+              "uuid": "condition-194f0dfc-1d44-4317-9aa5-b59da768563c"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 51,
+            "keyword": "if",
+            "dynamicPickListSelection": {
+            },
+            "toggleCfg": {
+            },
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "present",
+                  "lhs": "=_('data.slack_bot.ce200d10.context.modals')",
+                  "rhs": "",
+                  "uuid": "condition-1c209f56-48a3-4ed2-856c-c5055357c317"
+                },
+                {
+                  "operand": "is_true",
+                  "lhs": "=_('data.slack_bot.ce200d10.context.modals')['view_submission']",
+                  "rhs": "",
+                  "uuid": "condition-55836d50-aaca-4fbf-9adf-31bfb9443562"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 52,
+                "provider": "workato_variable",
+                "name": "update_variables",
+                "as": "93d76319",
+                "title": null,
+                "description": "Update variables <span class=\"provider\">Modal Action Type</span>",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "name": [
+                    {
+                      "label": "Modal Action Type (step 26)",
+                      "value": "cb84c0fe-0df8-4abf-a9c5-d2c0e35e3f01:c0147223:modal_action_type"
+                    }
+                  ]
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "name": "cb84c0fe-0df8-4abf-a9c5-d2c0e35e3f01:c0147223:modal_action_type",
+                  "modal_action_type": "update"
+                },
+                "extended_input_schema": [
+                  {
+                    "control_type": "text",
+                    "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                    "label": "Modal Action Type",
+                    "name": "modal_action_type",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "strip_interpolation": true
+                  }
+                ],
+                "uuid": "a2ca3aba-741b-478b-846f-f62b3aec55d8"
+              },
+              {
+                "number": 53,
+                "provider": "workato_variable",
+                "name": "declare_list",
+                "as": "6d1e833f",
+                "title": " Create Form Error list",
+                "description": "Create <span class=\"provider\">Form Error</span> list",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "name": "Form Error",
+                  "list_ERICm_schema_json": "[{\"name\":\"error\",\"type\":\"string\",\"optional\":true,\"control_type\":\"text\"}]"
+                },
+                "extended_output_schema": [
+                  {
+                    "hint": "",
+                    "label": "Form Error",
+                    "name": "list_ERICms",
+                    "of": "object",
+                    "optional": false,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Error",
+                        "name": "error",
+                        "type": "string",
+                        "optional": true
+                      }
+                    ],
+                    "type": "array"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "hint": "Set the initial ERICms in the list. Defaults to an empty list if not supplied.",
+                    "label": "ERICms",
+                    "name": "list_ERICms",
+                    "of": "object",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Error",
+                        "name": "error",
+                        "type": "string",
+                        "optional": true
+                      }
+                    ],
+                    "type": "array"
+                  }
+                ],
+                "uuid": "6837cad6-0298-4483-8b0e-089eef42c5a0"
+              },
+              {
+                "number": 54,
+                "provider": "slack_bot",
+                "name": "post_bot_reply_v2",
+                "as": "03cc1819",
+                "title": null,
+                "description": null,
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "text": "Thank you! ERIC Automation is processing your VM request. Please be patient.."
+                },
+                "uuid": "e7d059ab-68ff-48b3-813f-05d04e27afd0"
+              }
+            ],
+            "uuid": "233ae8b8-aeaf-47f7-a6d1-576e47c7dc9d"
+          },
+          {
+            "number": 55,
+            "keyword": "if",
+            "dynamicPickListSelection": {
+            },
+            "toggleCfg": {
+            },
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "equals_to",
+                  "lhs": "#{_('data.workato_variable.c0147223.modal_action_type')}",
+                  "rhs": "open",
+                  "uuid": "condition-36997cb7-f334-4303-946f-d6720ce57018"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 56,
+                "provider": "lookup_table",
+                "name": "search_entries",
+                "as": "efb2bed0",
+                "title": null,
+                "description": "\n      Search\n      <span class=\"provider\">entries</span>\n      in\n      <span class=\"provider\">ERIC-VMware-db</span>\n      lookup table\n    ",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "lookup_table_id": "ERIC-VMware-db"
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "lookup_table_id": {
+                    "zip_name": "ERIC_vmware_db.lookup_table.json",
+                    "name": "ERIC-VMware-db",
+                    "folder": ""
+                  },
+                  "parameters": {
+                    "col2": "#{_('data.slack_bot.ce200d10.context.user_email')}"
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Entries",
+                    "name": "entries",
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "number",
+                        "label": "Entry ID",
+                        "parse_output": "integer_conversion",
+                        "type": "integer",
+                        "name": "id"
+                      },
+                      {
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "UserAccount",
+                            "name": "col2",
+                            "type": "string",
+                            "sticky": true
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "VmInfo",
+                            "name": "col3",
+                            "type": "string",
+                            "sticky": true
+                          }
+                        ],
+                        "label": "Entry",
+                        "type": "object",
+                        "name": "entry"
+                      }
+                    ],
+                    "type": "array"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "hint": "Provide one or more entry fields to search the entry",
+                    "label": "Search by",
+                    "name": "parameters",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "UserAccount",
+                        "name": "col2",
+                        "type": "string",
+                        "sticky": true,
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "VmInfo",
+                        "name": "col3",
+                        "type": "string",
+                        "sticky": true,
+                        "optional": true
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "95b77f9d-77a5-4157-89a8-d2fff346a9ce"
+              },
+              {
+                "number": 57,
+                "provider": "workato_variable",
+                "name": "declare_list",
+                "as": "ca718821",
+                "title": " Create VM Action list",
+                "description": "Create <span class=\"provider\">VM Action</span> list",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "name": "VM Action",
+                  "list_ERICm_schema_json": "[{\"name\":\"Label\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\"},{\"name\":\"Value\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\"}]"
+                },
+                "extended_output_schema": [
+                  {
+                    "hint": "",
+                    "label": "VM Action",
+                    "name": "list_ERICms",
+                    "of": "object",
+                    "optional": false,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Label",
+                        "name": "Label",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "name": "Value",
+                        "type": "string",
+                        "optional": false
+                      }
+                    ],
+                    "type": "array"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "hint": "Set the initial ERICms in the list. Defaults to an empty list if not supplied.",
+                    "label": "ERICms",
+                    "name": "list_ERICms",
+                    "of": "object",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Label",
+                        "name": "Label",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "name": "Value",
+                        "type": "string",
+                        "optional": false
+                      }
+                    ],
+                    "type": "array"
+                  }
+                ],
+                "uuid": "b4f9f95b-c6fb-414b-bc77-4a2dd20ce32f"
+              },
+              {
+                "number": 58,
+                "provider": "workato_variable",
+                "name": "insert_to_list",
+                "as": "0d20b7e5",
+                "title": "Add ERICm to VM Action list",
+                "description": "Add <span class=\"provider\">ERICm</span> to <span class=\"provider\">VM Action</span> list",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "name": "VM Action (step 50)"
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "location": "end",
+                  "name": "b4f9f95b-c6fb-414b-bc77-4a2dd20ce32f:ca718821",
+                  "list_ERICm": {
+                    "Label": "VM Info",
+                    "Value": "vminfo"
+                  }
+                },
+                "extended_input_schema": [
+                  {
+                    "hint": "",
+                    "label": "List ERICm",
+                    "name": "list_ERICm",
+                    "optional": false,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Label",
+                        "name": "Label",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "name": "Value",
+                        "type": "string",
+                        "optional": false
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "1ca6b819-802c-4641-a0e3-06f487a5177b"
+              },
+              {
+                "number": 59,
+                "provider": "workato_variable",
+                "name": "insert_to_list",
+                "as": "e28923cf",
+                "title": "Add ERICm to VM Action list",
+                "description": "Add <span class=\"provider\">ERICm</span> to <span class=\"provider\">VM Action</span> list",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "name": "VM Action (step 50)"
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "location": "end",
+                  "name": "b4f9f95b-c6fb-414b-bc77-4a2dd20ce32f:ca718821",
+                  "list_ERICm": {
+                    "Label": "Start VM",
+                    "Value": "startvm"
+                  }
+                },
+                "extended_input_schema": [
+                  {
+                    "hint": "",
+                    "label": "List ERICm",
+                    "name": "list_ERICm",
+                    "optional": false,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Label",
+                        "name": "Label",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "name": "Value",
+                        "type": "string",
+                        "optional": false
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "53b9337d-e2f6-4499-b154-a47fde66cb4c"
+              },
+              {
+                "number": 60,
+                "provider": "workato_variable",
+                "name": "insert_to_list",
+                "as": "3f2a9e27",
+                "title": "Add ERICm to VM Action list",
+                "description": "Add <span class=\"provider\">ERICm</span> to <span class=\"provider\">VM Action</span> list",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "name": "VM Action (step 50)"
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "location": "end",
+                  "name": "b4f9f95b-c6fb-414b-bc77-4a2dd20ce32f:ca718821",
+                  "list_ERICm": {
+                    "Label": "Stop VM",
+                    "Value": "stopvm"
+                  }
+                },
+                "extended_input_schema": [
+                  {
+                    "hint": "",
+                    "label": "List ERICm",
+                    "name": "list_ERICm",
+                    "optional": false,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Label",
+                        "name": "Label",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "name": "Value",
+                        "type": "string",
+                        "optional": false
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "0c73839d-b23e-427e-bacc-7ebb90f2fcc5"
+              },
+              {
+                "number": 61,
+                "provider": "workato_variable",
+                "name": "insert_to_list",
+                "as": "26f23784",
+                "title": "Add ERICm to VM Action list",
+                "description": "Add <span class=\"provider\">ERICm</span> to <span class=\"provider\">VM Action</span> list",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "name": "VM Action (step 50)"
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "location": "end",
+                  "name": "b4f9f95b-c6fb-414b-bc77-4a2dd20ce32f:ca718821",
+                  "list_ERICm": {
+                    "Label": "Delete VM",
+                    "Value": "deletevm"
+                  }
+                },
+                "extended_input_schema": [
+                  {
+                    "hint": "",
+                    "label": "List ERICm",
+                    "name": "list_ERICm",
+                    "optional": false,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Label",
+                        "name": "Label",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "name": "Value",
+                        "type": "string",
+                        "optional": false
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "38bc97d9-5798-4f08-a2f5-91f208897ef7"
+              },
+              {
+                "number": 62,
+                "provider": "workato_variable",
+                "name": "declare_list",
+                "as": "22aeaf8e",
+                "title": " Create My VM list list",
+                "description": "Create <span class=\"provider\">My VM list</span> list",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "name": "My VM list",
+                  "list_ERICm_schema_json": "[{\"name\":\"myvmlist\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\"}]"
+                },
+                "extended_output_schema": [
+                  {
+                    "hint": "",
+                    "label": "My VM list",
+                    "name": "list_ERICms",
+                    "of": "object",
+                    "optional": false,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Myvmlist",
+                        "name": "myvmlist",
+                        "type": "string",
+                        "optional": false
+                      }
+                    ],
+                    "type": "array"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "hint": "Set the initial ERICms in the list. Defaults to an empty list if not supplied.",
+                    "label": "ERICms",
+                    "name": "list_ERICms",
+                    "of": "object",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Myvmlist",
+                        "name": "myvmlist",
+                        "type": "string",
+                        "optional": false
+                      }
+                    ],
+                    "type": "array"
+                  }
+                ],
+                "uuid": "990b5729-bf99-4dc5-9577-ba6aab5c0414"
+              },
+              {
+                "number": 63,
+                "provider": "workato_list",
+                "name": "create_list",
+                "as": "3188e95c",
+                "title": null,
+                "description": null,
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "size": "=_('data.lookup_table.efb2bed0.entries.first.____Size', 'list_meta', '____Size', 'data.lookup_table.efb2bed0.entries')"
+                },
+                "uuid": "524a046a-63f3-42a0-8f55-631c3b08c4a1"
+              },
+              {
+                "number": 64,
+                "as": "67ff782c",
+                "keyword": "foreach",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "repeat_mode": "simple",
+                "clear_scope": "false",
+                "input": {
+                },
+                "block": [
+                  {
+                    "number": 65,
+                    "provider": "workato_variable",
+                    "name": "insert_to_list",
+                    "as": "4013a102",
+                    "title": "Add ERICm to My VM list list",
+                    "description": "Add <span class=\"provider\">ERICm</span> to <span class=\"provider\">My VM list</span> list",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "name": "My VM list (step 56)"
+                    },
+                    "toggleCfg": {
+                    },
+                    "input": {
+                      "location": "end",
+                      "name": "990b5729-bf99-4dc5-9577-ba6aab5c0414:22aeaf8e",
+                      "list_ERICm": {
+                        "myvmlist": "=_('data.foreach.67ff782c.entry.col3')"
+                      }
+                    },
+                    "extended_input_schema": [
+                      {
+                        "hint": "",
+                        "label": "List ERICm",
+                        "name": "list_ERICm",
+                        "optional": false,
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Myvmlist",
+                            "name": "myvmlist",
+                            "type": "string",
+                            "optional": false
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ],
+                    "uuid": "4399db54-12d6-4f2c-96fd-956eccc07abc"
+                  }
+                ],
+                "source": "#{_('data.lookup_table.efb2bed0.entries')}",
+                "uuid": "d2c0a1a9-a97d-4f2d-88c4-1db3bb904fbd"
+              },
+              {
+                "number": 66,
+                "provider": "slack_bot",
+                "name": "block_kit_modals",
+                "as": "4edbaeb2",
+                "title": null,
+                "description": "Open/update or push a <span class=\"provider\">modal view</span> as <span class=\"provider\">Slack Workbot</span>",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                  "modal_action_type": false,
+                  "view.submit_view.bot_command": false,
+                  "view.blocks.0.options.init_value": true,
+                  "view.blocks.1.options.init_value": true
+                },
+                "input": {
+                  "modal_action_type": "#{_('data.workato_variable.c0147223.modal_action_type')}",
+                  "trigger_id": "#{_('data.slack_bot.ce200d10.context.trigger_id')}",
+                  "view": {
+                    "modal_title": "ERIC VMware SelfService",
+                    "blocks": [
+                      {
+                        "block_type": "select_menu_input",
+                        "label_text": "Good Day #{_('data.slack_bot.ce200d10.context.user_name')} See your VM list below",
+                        "block_id": "vmname",
+                        "placeholder_text": "Choose one",
+                        "menu_type": "static_select",
+                        "options": {
+                          "____source": "#{_('data.workato_variable.22aeaf8e.list_ERICms')}",
+                          "title": "#{_('data.workato_variable.22aeaf8e.list_ERICms.first.myvmlist')}",
+                          "value": "#{_('data.workato_variable.22aeaf8e.list_ERICms.first.myvmlist')}",
+                          "init_value": "true"
+                        },
+                        "optional": "false"
+                      },
+                      {
+                        "block_type": "radio_buttons_input",
+                        "label_text": "VM Action",
+                        "optional": "false",
+                        "block_id": "vmaction",
+                        "options": {
+                          "____source": "#{_('data.workato_variable.ca718821.list_ERICms')}",
+                          "title": "#{_('data.workato_variable.ca718821.list_ERICms.first.Label')}",
+                          "value": "#{_('data.workato_variable.ca718821.list_ERICms.first.Value')}",
+                          "init_value": "false"
+                        }
+                      }
+                    ],
+                    "submit_view": {
+                      "bot_command": "#{_('data.workato.job_context.recipe_id')}",
+                      "submit_text": "Process VM Request",
+                      "close_text": "Cancel",
+                      "params": "userchoice: manageVM",
+                      "continue_flow": "false"
+                    }
+                  }
+                },
+                "uuid": "c3f779e5-ce8a-4339-b243-22e42df30a9f"
+              }
+            ],
+            "uuid": "6d9cf750-a371-477d-a0b6-4eeaeaa0e685"
+          },
+          {
+            "number": 67,
+            "keyword": "if",
+            "dynamicPickListSelection": {
+            },
+            "toggleCfg": {
+            },
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "equals_to",
+                  "lhs": "#{_('data.slack_bot.ce200d10.parameters.vmaction')}",
+                  "rhs": "vminfo",
+                  "uuid": "condition-4f6ae466-69d7-4675-ab3b-8efbe6e6bc89"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 68,
+                "provider": "onprem_command_line_scripts",
+                "name": "execute_script",
+                "as": "98acc87c",
+                "title": null,
+                "description": "Execute <span class=\"provider\">get-vm</span> script",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "script_id": "get-vm"
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "script_id": "vm_list",
+                  "parameters": {
+                    "vmname": "#{_('data.slack_bot.ce200d10.parameters.vmname')}"
+                  },
+                  "timeout": "2"
+                },
+                "extended_input_schema": [
+                  {
+                    "hint": "Provide value for script input",
+                    "label": "Script input",
+                    "name": "parameters",
+                    "optional": false,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Vmname",
+                        "name": "vmname",
+                        "type": "string"
+                      }
+                    ],
+                    "sticky": false,
+                    "type": "object"
+                  }
+                ],
+                "uuid": "d4aa0759-614c-4858-839c-c07ccb3e412b"
+              },
+              {
+                "number": 69,
+                "provider": "workato_variable",
+                "name": "declare_variable",
+                "as": "ea0a5bf2",
+                "title": "  Create variable vmid",
+                "description": "Create variable <span class=\"provider\">vmid</span>",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "variables": {
+                    "schema": "[{\"name\":\"vmid\",\"type\":\"string\",\"optional\":true,\"label\":\"vmid\",\"control_type\":\"text\"}]",
+                    "data": {
+                      "vmid": "=_('data.onprem_command_line_scripts.98acc87c.system_out').gsub(/\\n+/, \"\\n\").strip"
+                    }
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "control_type": "text",
+                    "label": "vmid",
+                    "name": "vmid",
+                    "optional": true,
+                    "type": "string"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "add_field_label": "Add a variable",
+                    "control_type": "form-schema-builder",
+                    "empty_schema_title": "Add variables by giving them a name, type and default value",
+                    "exclude_fields": [
+                      "hint"
+                    ],
+                    "ERICm_label": "variable",
+                    "label": "Variables",
+                    "mark_as_required": true,
+                    "name": "variables",
+                    "ngIf": "!input.name",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Schema",
+                        "extends_schema": true,
+                        "broadcast_change_event": true,
+                        "type": "string",
+                        "name": "schema"
+                      },
+                      {
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "vmid",
+                            "name": "vmid",
+                            "type": "string",
+                            "optional": true,
+                            "hint": "Defaults to nil if not supplied.",
+                            "sticky": true
+                          }
+                        ],
+                        "label": "Data",
+                        "type": "object",
+                        "name": "data"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "visible_config_fields": [
+                  "variables.data.vmid"
+                ],
+                "uuid": "8ec2fb9f-c341-494c-ade3-1160a4657ff6"
+              },
+              {
+                "number": 70,
+                "provider": "rest",
+                "name": "make_request_v2",
+                "as": "4fe1bb76",
+                "title": "Send request",
+                "description": "<span class=\"provider\">Send request</span> via <span class=\"provider\">HTTP</span>",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                  "response.ignore_http_errors": true
+                },
+                "input": {
+                  "request_name": "Send request",
+                  "request": {
+                    "method": "POST",
+                    "content_type": "application/json",
+                    "url": "https://sg1-3f-vcenter-01.it.xvservice.net/rest/com/vmware/cis/session",
+                    "headers": [
+                      {
+                        "header": "Authorization",
+                        "value": "Basic dm1ib3RzZXJ2aWNlQHh2c2VydmljZXMubG9jYWw6VTc4ckZfQ3NDZDkqIQ=="
+                      }
+                    ]
+                  },
+                  "response": {
+                    "output_type": "json",
+                    "expected_encoding": "UTF-8",
+                    "ignore_http_errors": "false",
+                    "response_schema": "[{\"name\":\"value\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\"}]"
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Headers",
+                    "name": "headers",
+                    "properties": [
+
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "label": "Response",
+                    "name": "response",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "name": "value",
+                        "type": "string",
+                        "optional": false
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "label": "Response",
+                    "name": "response",
+                    "override": true,
+                    "properties": [
+                      {
+                        "control_type": "select",
+                        "label": "Response content type",
+                        "pick_list": [
+                          [
+                            "Text",
+                            "rawdatatxt"
+                          ],
+                          [
+                            "Binary",
+                            "rawdata"
+                          ],
+                          [
+                            "JSON",
+                            "json"
+                          ],
+                          [
+                            "XML",
+                            "xml2"
+                          ]
+                        ],
+                        "hint": "Select expected format of data response type, e.g. JSON or XML. <a href=\"https://docs.workato.com/developing-connectors/http.html#response-type\" target=\"_blank\">Learn more</a>",
+                        "default": "json",
+                        "extends_schema": true,
+                        "type": "string",
+                        "name": "output_type"
+                      },
+                      {
+                        "control_type": "select",
+                        "label": "Encoding",
+                        "pick_list": [
+                          [
+                            "UTF-8",
+                            "UTF-8"
+                          ],
+                          [
+                            "US-ASCII",
+                            "US-ASCII"
+                          ],
+                          [
+                            "UTF-16BE",
+                            "UTF-16BE"
+                          ],
+                          [
+                            "UTF-16LE",
+                            "UTF-16LE"
+                          ],
+                          [
+                            "UTF-32BE",
+                            "UTF-32BE"
+                          ],
+                          [
+                            "UTF-32LE",
+                            "UTF-32LE"
+                          ],
+                          [
+                            "UTF-16",
+                            "UTF-16"
+                          ],
+                          [
+                            "UTF-32",
+                            "UTF-32"
+                          ],
+                          [
+                            "UTF8-MAC",
+                            "UTF8-MAC"
+                          ],
+                          [
+                            "EUC-JP",
+                            "EUC-JP"
+                          ],
+                          [
+                            "Windows-31J",
+                            "Windows-31J"
+                          ],
+                          [
+                            "Big5",
+                            "Big5"
+                          ],
+                          [
+                            "Big5-HKSCS",
+                            "Big5-HKSCS"
+                          ],
+                          [
+                            "Big5-UAO",
+                            "Big5-UAO"
+                          ],
+                          [
+                            "CP949",
+                            "CP949"
+                          ],
+                          [
+                            "Emacs-Mule",
+                            "Emacs-Mule"
+                          ],
+                          [
+                            "EUC-KR",
+                            "EUC-KR"
+                          ],
+                          [
+                            "EUC-TW",
+                            "EUC-TW"
+                          ],
+                          [
+                            "GB2312",
+                            "GB2312"
+                          ],
+                          [
+                            "GB18030",
+                            "GB18030"
+                          ],
+                          [
+                            "GBK",
+                            "GBK"
+                          ],
+                          [
+                            "ISO-8859-1",
+                            "ISO-8859-1"
+                          ],
+                          [
+                            "ISO-8859-2",
+                            "ISO-8859-2"
+                          ],
+                          [
+                            "ISO-8859-3",
+                            "ISO-8859-3"
+                          ],
+                          [
+                            "ISO-8859-4",
+                            "ISO-8859-4"
+                          ],
+                          [
+                            "ISO-8859-5",
+                            "ISO-8859-5"
+                          ],
+                          [
+                            "ISO-8859-6",
+                            "ISO-8859-6"
+                          ],
+                          [
+                            "ISO-8859-7",
+                            "ISO-8859-7"
+                          ],
+                          [
+                            "ISO-8859-8",
+                            "ISO-8859-8"
+                          ],
+                          [
+                            "ISO-8859-9",
+                            "ISO-8859-9"
+                          ],
+                          [
+                            "ISO-8859-10",
+                            "ISO-8859-10"
+                          ],
+                          [
+                            "ISO-8859-11",
+                            "ISO-8859-11"
+                          ],
+                          [
+                            "ISO-8859-13",
+                            "ISO-8859-13"
+                          ],
+                          [
+                            "ISO-8859-14",
+                            "ISO-8859-14"
+                          ],
+                          [
+                            "ISO-8859-15",
+                            "ISO-8859-15"
+                          ],
+                          [
+                            "ISO-8859-16",
+                            "ISO-8859-16"
+                          ],
+                          [
+                            "KOI8-R",
+                            "KOI8-R"
+                          ],
+                          [
+                            "KOI8-U",
+                            "KOI8-U"
+                          ],
+                          [
+                            "Shift_JIS",
+                            "Shift_JIS"
+                          ],
+                          [
+                            "Windows-1250",
+                            "Windows-1250"
+                          ],
+                          [
+                            "Windows-1251",
+                            "Windows-1251"
+                          ],
+                          [
+                            "Windows-1252",
+                            "Windows-1252"
+                          ],
+                          [
+                            "Windows-1253",
+                            "Windows-1253"
+                          ],
+                          [
+                            "Windows-1254",
+                            "Windows-1254"
+                          ],
+                          [
+                            "Windows-1257",
+                            "Windows-1257"
+                          ],
+                          [
+                            "IBM437",
+                            "IBM437"
+                          ],
+                          [
+                            "IBM737",
+                            "IBM737"
+                          ],
+                          [
+                            "IBM775",
+                            "IBM775"
+                          ],
+                          [
+                            "CP850",
+                            "CP850"
+                          ],
+                          [
+                            "IBM852",
+                            "IBM852"
+                          ],
+                          [
+                            "CP852",
+                            "CP852"
+                          ],
+                          [
+                            "IBM855",
+                            "IBM855"
+                          ],
+                          [
+                            "CP855",
+                            "CP855"
+                          ],
+                          [
+                            "IBM857",
+                            "IBM857"
+                          ],
+                          [
+                            "IBM860",
+                            "IBM860"
+                          ],
+                          [
+                            "IBM861",
+                            "IBM861"
+                          ],
+                          [
+                            "IBM862",
+                            "IBM862"
+                          ],
+                          [
+                            "IBM863",
+                            "IBM863"
+                          ],
+                          [
+                            "IBM864",
+                            "IBM864"
+                          ],
+                          [
+                            "IBM865",
+                            "IBM865"
+                          ],
+                          [
+                            "IBM866",
+                            "IBM866"
+                          ],
+                          [
+                            "IBM869",
+                            "IBM869"
+                          ],
+                          [
+                            "Windows-1258",
+                            "Windows-1258"
+                          ],
+                          [
+                            "GB1988",
+                            "GB1988"
+                          ],
+                          [
+                            "macCentEuro",
+                            "macCentEuro"
+                          ],
+                          [
+                            "macCroatian",
+                            "macCroatian"
+                          ],
+                          [
+                            "macCyrillic",
+                            "macCyrillic"
+                          ],
+                          [
+                            "macGreek",
+                            "macGreek"
+                          ],
+                          [
+                            "macIceland",
+                            "macIceland"
+                          ],
+                          [
+                            "macRoman",
+                            "macRoman"
+                          ],
+                          [
+                            "macRomania",
+                            "macRomania"
+                          ],
+                          [
+                            "macThai",
+                            "macThai"
+                          ],
+                          [
+                            "macTurkish",
+                            "macTurkish"
+                          ],
+                          [
+                            "macUkraine",
+                            "macUkraine"
+                          ],
+                          [
+                            "CP950",
+                            "CP950"
+                          ],
+                          [
+                            "CP951",
+                            "CP951"
+                          ],
+                          [
+                            "IBM037",
+                            "IBM037"
+                          ],
+                          [
+                            "stateless-ISO-2022-JP",
+                            "stateless-ISO-2022-JP"
+                          ],
+                          [
+                            "eucJP-ms",
+                            "eucJP-ms"
+                          ],
+                          [
+                            "CP51932",
+                            "CP51932"
+                          ],
+                          [
+                            "EUC-JIS-2004",
+                            "EUC-JIS-2004"
+                          ],
+                          [
+                            "GB12345",
+                            "GB12345"
+                          ],
+                          [
+                            "ISO-2022-JP",
+                            "ISO-2022-JP"
+                          ],
+                          [
+                            "ISO-2022-JP-2",
+                            "ISO-2022-JP-2"
+                          ],
+                          [
+                            "CP50220",
+                            "CP50220"
+                          ],
+                          [
+                            "CP50221",
+                            "CP50221"
+                          ],
+                          [
+                            "Windows-1256",
+                            "Windows-1256"
+                          ],
+                          [
+                            "Windows-1255",
+                            "Windows-1255"
+                          ],
+                          [
+                            "TIS-620",
+                            "TIS-620"
+                          ],
+                          [
+                            "Windows-874",
+                            "Windows-874"
+                          ],
+                          [
+                            "MacJapanese",
+                            "MacJapanese"
+                          ],
+                          [
+                            "UTF-7",
+                            "UTF-7"
+                          ],
+                          [
+                            "UTF8-DoCoMo",
+                            "UTF8-DoCoMo"
+                          ],
+                          [
+                            "SJIS-DoCoMo",
+                            "SJIS-DoCoMo"
+                          ],
+                          [
+                            "UTF8-KDDI",
+                            "UTF8-KDDI"
+                          ],
+                          [
+                            "SJIS-KDDI",
+                            "SJIS-KDDI"
+                          ],
+                          [
+                            "ISO-2022-JP-KDDI",
+                            "ISO-2022-JP-KDDI"
+                          ],
+                          [
+                            "stateless-ISO-2022-JP-KDDI",
+                            "stateless-ISO-2022-JP-KDDI"
+                          ],
+                          [
+                            "UTF8-SoftBank",
+                            "UTF8-SoftBank"
+                          ],
+                          [
+                            "SJIS-SoftBank",
+                            "SJIS-SoftBank"
+                          ]
+                        ],
+                        "optional": true,
+                        "default": "UTF-8",
+                        "hint": "Default encoding type is set to UTF-8, and typically doesn't need to be changed. <a href=\"https://docs.workato.com/developing-connectors/http.html#expected-encoding\" target=\"_blank\">Learn more</a>",
+                        "type": "string",
+                        "name": "expected_encoding"
+                      },
+                      {
+                        "control_type": "schema-designer",
+                        "label": "Response schema",
+                        "sample_data_type": "json_http",
+                        "extends_schema": true,
+                        "empty_schema_title": "Describe all fields in your response.",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "name": "response_schema"
+                      },
+                      {
+                        "control_type": "schema-designer",
+                        "label": "HTTP response headers",
+                        "extends_schema": true,
+                        "empty_schema_title": "Describe all the response headers",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "name": "headers_schema"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Mark non-2xx response codes as success?",
+                        "render_input": {
+                        },
+                        "parse_output": {
+                        },
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "Mark non-2xx response codes as success?",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "default": false,
+                          "hint": "If <b>yes</b>, non 2xx response codes returned will be marked as a successful action. If <b>no</b>, non 2xx response codes returned will be marked as an error.",
+                          "optional": true,
+                          "type": "boolean",
+                          "name": "ignore_http_errors"
+                        },
+                        "default": "false",
+                        "hint": "If <b>yes</b>, non 2xx response codes returned will be marked as a successful action. If <b>no</b>, non 2xx response codes returned will be marked as an error.",
+                        "optional": true,
+                        "type": "boolean",
+                        "name": "ignore_http_errors"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "1432d056-cec5-46fe-b32a-3d44becc7f9e",
+                "wizardFinished": true
+              },
+              {
+                "number": 71,
+                "provider": "rest",
+                "name": "make_request_v2",
+                "as": "7a3e7cf2",
+                "title": "Send request",
+                "description": "<span class=\"provider\">Send request</span> via <span class=\"provider\">HTTP</span>",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                  "response.ignore_http_errors": true
+                },
+                "input": {
+                  "request_name": "Send request",
+                  "request": {
+                    "method": "GET",
+                    "content_type": "application/json",
+                    "url": "https://sg1-3f-vcenter-01.it.xvservice.net/api/vcenter/vm?names=#{_('data.slack_bot.ce200d10.parameters.vmname')}",
+                    "headers": [
+                      {
+                        "header": "vmware-api-session-id",
+                        "value": "#{_('data.rest.4fe1bb76.response.value')}"
+                      }
+                    ]
+                  },
+                  "response": {
+                    "output_type": "json",
+                    "expected_encoding": "UTF-8",
+                    "ignore_http_errors": "false"
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Headers",
+                    "name": "headers",
+                    "properties": [
+
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "label": "Response",
+                    "name": "response",
+                    "properties": [
+
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "label": "Response",
+                    "name": "response",
+                    "override": true,
+                    "properties": [
+                      {
+                        "control_type": "select",
+                        "label": "Response content type",
+                        "pick_list": [
+                          [
+                            "Text",
+                            "rawdatatxt"
+                          ],
+                          [
+                            "Binary",
+                            "rawdata"
+                          ],
+                          [
+                            "JSON",
+                            "json"
+                          ],
+                          [
+                            "XML",
+                            "xml2"
+                          ]
+                        ],
+                        "hint": "Select expected format of data response type, e.g. JSON or XML. <a href=\"https://docs.workato.com/developing-connectors/http.html#response-type\" target=\"_blank\">Learn more</a>",
+                        "default": "json",
+                        "extends_schema": true,
+                        "type": "string",
+                        "name": "output_type"
+                      },
+                      {
+                        "control_type": "select",
+                        "label": "Encoding",
+                        "pick_list": [
+                          [
+                            "UTF-8",
+                            "UTF-8"
+                          ],
+                          [
+                            "US-ASCII",
+                            "US-ASCII"
+                          ],
+                          [
+                            "UTF-16BE",
+                            "UTF-16BE"
+                          ],
+                          [
+                            "UTF-16LE",
+                            "UTF-16LE"
+                          ],
+                          [
+                            "UTF-32BE",
+                            "UTF-32BE"
+                          ],
+                          [
+                            "UTF-32LE",
+                            "UTF-32LE"
+                          ],
+                          [
+                            "UTF-16",
+                            "UTF-16"
+                          ],
+                          [
+                            "UTF-32",
+                            "UTF-32"
+                          ],
+                          [
+                            "UTF8-MAC",
+                            "UTF8-MAC"
+                          ],
+                          [
+                            "EUC-JP",
+                            "EUC-JP"
+                          ],
+                          [
+                            "Windows-31J",
+                            "Windows-31J"
+                          ],
+                          [
+                            "Big5",
+                            "Big5"
+                          ],
+                          [
+                            "Big5-HKSCS",
+                            "Big5-HKSCS"
+                          ],
+                          [
+                            "Big5-UAO",
+                            "Big5-UAO"
+                          ],
+                          [
+                            "CP949",
+                            "CP949"
+                          ],
+                          [
+                            "Emacs-Mule",
+                            "Emacs-Mule"
+                          ],
+                          [
+                            "EUC-KR",
+                            "EUC-KR"
+                          ],
+                          [
+                            "EUC-TW",
+                            "EUC-TW"
+                          ],
+                          [
+                            "GB2312",
+                            "GB2312"
+                          ],
+                          [
+                            "GB18030",
+                            "GB18030"
+                          ],
+                          [
+                            "GBK",
+                            "GBK"
+                          ],
+                          [
+                            "ISO-8859-1",
+                            "ISO-8859-1"
+                          ],
+                          [
+                            "ISO-8859-2",
+                            "ISO-8859-2"
+                          ],
+                          [
+                            "ISO-8859-3",
+                            "ISO-8859-3"
+                          ],
+                          [
+                            "ISO-8859-4",
+                            "ISO-8859-4"
+                          ],
+                          [
+                            "ISO-8859-5",
+                            "ISO-8859-5"
+                          ],
+                          [
+                            "ISO-8859-6",
+                            "ISO-8859-6"
+                          ],
+                          [
+                            "ISO-8859-7",
+                            "ISO-8859-7"
+                          ],
+                          [
+                            "ISO-8859-8",
+                            "ISO-8859-8"
+                          ],
+                          [
+                            "ISO-8859-9",
+                            "ISO-8859-9"
+                          ],
+                          [
+                            "ISO-8859-10",
+                            "ISO-8859-10"
+                          ],
+                          [
+                            "ISO-8859-11",
+                            "ISO-8859-11"
+                          ],
+                          [
+                            "ISO-8859-13",
+                            "ISO-8859-13"
+                          ],
+                          [
+                            "ISO-8859-14",
+                            "ISO-8859-14"
+                          ],
+                          [
+                            "ISO-8859-15",
+                            "ISO-8859-15"
+                          ],
+                          [
+                            "ISO-8859-16",
+                            "ISO-8859-16"
+                          ],
+                          [
+                            "KOI8-R",
+                            "KOI8-R"
+                          ],
+                          [
+                            "KOI8-U",
+                            "KOI8-U"
+                          ],
+                          [
+                            "Shift_JIS",
+                            "Shift_JIS"
+                          ],
+                          [
+                            "Windows-1250",
+                            "Windows-1250"
+                          ],
+                          [
+                            "Windows-1251",
+                            "Windows-1251"
+                          ],
+                          [
+                            "Windows-1252",
+                            "Windows-1252"
+                          ],
+                          [
+                            "Windows-1253",
+                            "Windows-1253"
+                          ],
+                          [
+                            "Windows-1254",
+                            "Windows-1254"
+                          ],
+                          [
+                            "Windows-1257",
+                            "Windows-1257"
+                          ],
+                          [
+                            "IBM437",
+                            "IBM437"
+                          ],
+                          [
+                            "IBM737",
+                            "IBM737"
+                          ],
+                          [
+                            "IBM775",
+                            "IBM775"
+                          ],
+                          [
+                            "CP850",
+                            "CP850"
+                          ],
+                          [
+                            "IBM852",
+                            "IBM852"
+                          ],
+                          [
+                            "CP852",
+                            "CP852"
+                          ],
+                          [
+                            "IBM855",
+                            "IBM855"
+                          ],
+                          [
+                            "CP855",
+                            "CP855"
+                          ],
+                          [
+                            "IBM857",
+                            "IBM857"
+                          ],
+                          [
+                            "IBM860",
+                            "IBM860"
+                          ],
+                          [
+                            "IBM861",
+                            "IBM861"
+                          ],
+                          [
+                            "IBM862",
+                            "IBM862"
+                          ],
+                          [
+                            "IBM863",
+                            "IBM863"
+                          ],
+                          [
+                            "IBM864",
+                            "IBM864"
+                          ],
+                          [
+                            "IBM865",
+                            "IBM865"
+                          ],
+                          [
+                            "IBM866",
+                            "IBM866"
+                          ],
+                          [
+                            "IBM869",
+                            "IBM869"
+                          ],
+                          [
+                            "Windows-1258",
+                            "Windows-1258"
+                          ],
+                          [
+                            "GB1988",
+                            "GB1988"
+                          ],
+                          [
+                            "macCentEuro",
+                            "macCentEuro"
+                          ],
+                          [
+                            "macCroatian",
+                            "macCroatian"
+                          ],
+                          [
+                            "macCyrillic",
+                            "macCyrillic"
+                          ],
+                          [
+                            "macGreek",
+                            "macGreek"
+                          ],
+                          [
+                            "macIceland",
+                            "macIceland"
+                          ],
+                          [
+                            "macRoman",
+                            "macRoman"
+                          ],
+                          [
+                            "macRomania",
+                            "macRomania"
+                          ],
+                          [
+                            "macThai",
+                            "macThai"
+                          ],
+                          [
+                            "macTurkish",
+                            "macTurkish"
+                          ],
+                          [
+                            "macUkraine",
+                            "macUkraine"
+                          ],
+                          [
+                            "CP950",
+                            "CP950"
+                          ],
+                          [
+                            "CP951",
+                            "CP951"
+                          ],
+                          [
+                            "IBM037",
+                            "IBM037"
+                          ],
+                          [
+                            "stateless-ISO-2022-JP",
+                            "stateless-ISO-2022-JP"
+                          ],
+                          [
+                            "eucJP-ms",
+                            "eucJP-ms"
+                          ],
+                          [
+                            "CP51932",
+                            "CP51932"
+                          ],
+                          [
+                            "EUC-JIS-2004",
+                            "EUC-JIS-2004"
+                          ],
+                          [
+                            "GB12345",
+                            "GB12345"
+                          ],
+                          [
+                            "ISO-2022-JP",
+                            "ISO-2022-JP"
+                          ],
+                          [
+                            "ISO-2022-JP-2",
+                            "ISO-2022-JP-2"
+                          ],
+                          [
+                            "CP50220",
+                            "CP50220"
+                          ],
+                          [
+                            "CP50221",
+                            "CP50221"
+                          ],
+                          [
+                            "Windows-1256",
+                            "Windows-1256"
+                          ],
+                          [
+                            "Windows-1255",
+                            "Windows-1255"
+                          ],
+                          [
+                            "TIS-620",
+                            "TIS-620"
+                          ],
+                          [
+                            "Windows-874",
+                            "Windows-874"
+                          ],
+                          [
+                            "MacJapanese",
+                            "MacJapanese"
+                          ],
+                          [
+                            "UTF-7",
+                            "UTF-7"
+                          ],
+                          [
+                            "UTF8-DoCoMo",
+                            "UTF8-DoCoMo"
+                          ],
+                          [
+                            "SJIS-DoCoMo",
+                            "SJIS-DoCoMo"
+                          ],
+                          [
+                            "UTF8-KDDI",
+                            "UTF8-KDDI"
+                          ],
+                          [
+                            "SJIS-KDDI",
+                            "SJIS-KDDI"
+                          ],
+                          [
+                            "ISO-2022-JP-KDDI",
+                            "ISO-2022-JP-KDDI"
+                          ],
+                          [
+                            "stateless-ISO-2022-JP-KDDI",
+                            "stateless-ISO-2022-JP-KDDI"
+                          ],
+                          [
+                            "UTF8-SoftBank",
+                            "UTF8-SoftBank"
+                          ],
+                          [
+                            "SJIS-SoftBank",
+                            "SJIS-SoftBank"
+                          ]
+                        ],
+                        "optional": true,
+                        "default": "UTF-8",
+                        "hint": "Default encoding type is set to UTF-8, and typically doesn't need to be changed. <a href=\"https://docs.workato.com/developing-connectors/http.html#expected-encoding\" target=\"_blank\">Learn more</a>",
+                        "type": "string",
+                        "name": "expected_encoding"
+                      },
+                      {
+                        "control_type": "schema-designer",
+                        "label": "Response schema",
+                        "sample_data_type": "json_http",
+                        "extends_schema": true,
+                        "empty_schema_title": "Describe all fields in your response.",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "name": "response_schema"
+                      },
+                      {
+                        "control_type": "schema-designer",
+                        "label": "HTTP response headers",
+                        "extends_schema": true,
+                        "empty_schema_title": "Describe all the response headers",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "name": "headers_schema"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Mark non-2xx response codes as success?",
+                        "render_input": {
+                        },
+                        "parse_output": {
+                        },
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "Mark non-2xx response codes as success?",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "default": false,
+                          "hint": "If <b>yes</b>, non 2xx response codes returned will be marked as a successful action. If <b>no</b>, non 2xx response codes returned will be marked as an error.",
+                          "optional": true,
+                          "type": "boolean",
+                          "name": "ignore_http_errors"
+                        },
+                        "default": "false",
+                        "hint": "If <b>yes</b>, non 2xx response codes returned will be marked as a successful action. If <b>no</b>, non 2xx response codes returned will be marked as an error.",
+                        "optional": true,
+                        "type": "boolean",
+                        "name": "ignore_http_errors"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "a08f200c-3b80-48b7-9f45-feb93c894c8a",
+                "wizardFinished": true,
+                "skip": false
+              },
+              {
+                "number": 72,
+                "provider": "rest",
+                "name": "make_request_v2",
+                "as": "9071fe87",
+                "title": "Send request",
+                "description": "<span class=\"provider\">Send request</span> via <span class=\"provider\">HTTP</span>",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                  "response.ignore_http_errors": true
+                },
+                "input": {
+                  "request_name": "Send request",
+                  "request": {
+                    "method": "POST",
+                    "content_type": "application/json",
+                    "url": "https://sg1-3f-vcenter-01.it.xvservice.net/api/vcenter/vm/#{_('data.workato_variable.ea0a5bf2.vmid')}/console/tickets",
+                    "body": "{\n    \"type\": \"VMRC\"\n}",
+                    "headers": [
+                      {
+                        "header": "vmware-api-session-id",
+                        "value": "#{_('data.rest.4fe1bb76.response.value')}"
+                      }
+                    ]
+                  },
+                  "response": {
+                    "output_type": "json",
+                    "expected_encoding": "UTF-8",
+                    "ignore_http_errors": "false",
+                    "response_schema": "[{\"name\":\"ticket\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\"}]"
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Headers",
+                    "name": "headers",
+                    "properties": [
+
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "label": "Response",
+                    "name": "response",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Ticket",
+                        "name": "ticket",
+                        "type": "string",
+                        "optional": false
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "label": "Response",
+                    "name": "response",
+                    "override": true,
+                    "properties": [
+                      {
+                        "control_type": "select",
+                        "label": "Response content type",
+                        "pick_list": [
+                          [
+                            "Text",
+                            "rawdatatxt"
+                          ],
+                          [
+                            "Binary",
+                            "rawdata"
+                          ],
+                          [
+                            "JSON",
+                            "json"
+                          ],
+                          [
+                            "XML",
+                            "xml2"
+                          ]
+                        ],
+                        "hint": "Select expected format of data response type, e.g. JSON or XML. <a href=\"https://docs.workato.com/developing-connectors/http.html#response-type\" target=\"_blank\">Learn more</a>",
+                        "default": "json",
+                        "extends_schema": true,
+                        "type": "string",
+                        "name": "output_type"
+                      },
+                      {
+                        "control_type": "select",
+                        "label": "Encoding",
+                        "pick_list": [
+                          [
+                            "UTF-8",
+                            "UTF-8"
+                          ],
+                          [
+                            "US-ASCII",
+                            "US-ASCII"
+                          ],
+                          [
+                            "UTF-16BE",
+                            "UTF-16BE"
+                          ],
+                          [
+                            "UTF-16LE",
+                            "UTF-16LE"
+                          ],
+                          [
+                            "UTF-32BE",
+                            "UTF-32BE"
+                          ],
+                          [
+                            "UTF-32LE",
+                            "UTF-32LE"
+                          ],
+                          [
+                            "UTF-16",
+                            "UTF-16"
+                          ],
+                          [
+                            "UTF-32",
+                            "UTF-32"
+                          ],
+                          [
+                            "UTF8-MAC",
+                            "UTF8-MAC"
+                          ],
+                          [
+                            "EUC-JP",
+                            "EUC-JP"
+                          ],
+                          [
+                            "Windows-31J",
+                            "Windows-31J"
+                          ],
+                          [
+                            "Big5",
+                            "Big5"
+                          ],
+                          [
+                            "Big5-HKSCS",
+                            "Big5-HKSCS"
+                          ],
+                          [
+                            "Big5-UAO",
+                            "Big5-UAO"
+                          ],
+                          [
+                            "CP949",
+                            "CP949"
+                          ],
+                          [
+                            "Emacs-Mule",
+                            "Emacs-Mule"
+                          ],
+                          [
+                            "EUC-KR",
+                            "EUC-KR"
+                          ],
+                          [
+                            "EUC-TW",
+                            "EUC-TW"
+                          ],
+                          [
+                            "GB2312",
+                            "GB2312"
+                          ],
+                          [
+                            "GB18030",
+                            "GB18030"
+                          ],
+                          [
+                            "GBK",
+                            "GBK"
+                          ],
+                          [
+                            "ISO-8859-1",
+                            "ISO-8859-1"
+                          ],
+                          [
+                            "ISO-8859-2",
+                            "ISO-8859-2"
+                          ],
+                          [
+                            "ISO-8859-3",
+                            "ISO-8859-3"
+                          ],
+                          [
+                            "ISO-8859-4",
+                            "ISO-8859-4"
+                          ],
+                          [
+                            "ISO-8859-5",
+                            "ISO-8859-5"
+                          ],
+                          [
+                            "ISO-8859-6",
+                            "ISO-8859-6"
+                          ],
+                          [
+                            "ISO-8859-7",
+                            "ISO-8859-7"
+                          ],
+                          [
+                            "ISO-8859-8",
+                            "ISO-8859-8"
+                          ],
+                          [
+                            "ISO-8859-9",
+                            "ISO-8859-9"
+                          ],
+                          [
+                            "ISO-8859-10",
+                            "ISO-8859-10"
+                          ],
+                          [
+                            "ISO-8859-11",
+                            "ISO-8859-11"
+                          ],
+                          [
+                            "ISO-8859-13",
+                            "ISO-8859-13"
+                          ],
+                          [
+                            "ISO-8859-14",
+                            "ISO-8859-14"
+                          ],
+                          [
+                            "ISO-8859-15",
+                            "ISO-8859-15"
+                          ],
+                          [
+                            "ISO-8859-16",
+                            "ISO-8859-16"
+                          ],
+                          [
+                            "KOI8-R",
+                            "KOI8-R"
+                          ],
+                          [
+                            "KOI8-U",
+                            "KOI8-U"
+                          ],
+                          [
+                            "Shift_JIS",
+                            "Shift_JIS"
+                          ],
+                          [
+                            "Windows-1250",
+                            "Windows-1250"
+                          ],
+                          [
+                            "Windows-1251",
+                            "Windows-1251"
+                          ],
+                          [
+                            "Windows-1252",
+                            "Windows-1252"
+                          ],
+                          [
+                            "Windows-1253",
+                            "Windows-1253"
+                          ],
+                          [
+                            "Windows-1254",
+                            "Windows-1254"
+                          ],
+                          [
+                            "Windows-1257",
+                            "Windows-1257"
+                          ],
+                          [
+                            "IBM437",
+                            "IBM437"
+                          ],
+                          [
+                            "IBM737",
+                            "IBM737"
+                          ],
+                          [
+                            "IBM775",
+                            "IBM775"
+                          ],
+                          [
+                            "CP850",
+                            "CP850"
+                          ],
+                          [
+                            "IBM852",
+                            "IBM852"
+                          ],
+                          [
+                            "CP852",
+                            "CP852"
+                          ],
+                          [
+                            "IBM855",
+                            "IBM855"
+                          ],
+                          [
+                            "CP855",
+                            "CP855"
+                          ],
+                          [
+                            "IBM857",
+                            "IBM857"
+                          ],
+                          [
+                            "IBM860",
+                            "IBM860"
+                          ],
+                          [
+                            "IBM861",
+                            "IBM861"
+                          ],
+                          [
+                            "IBM862",
+                            "IBM862"
+                          ],
+                          [
+                            "IBM863",
+                            "IBM863"
+                          ],
+                          [
+                            "IBM864",
+                            "IBM864"
+                          ],
+                          [
+                            "IBM865",
+                            "IBM865"
+                          ],
+                          [
+                            "IBM866",
+                            "IBM866"
+                          ],
+                          [
+                            "IBM869",
+                            "IBM869"
+                          ],
+                          [
+                            "Windows-1258",
+                            "Windows-1258"
+                          ],
+                          [
+                            "GB1988",
+                            "GB1988"
+                          ],
+                          [
+                            "macCentEuro",
+                            "macCentEuro"
+                          ],
+                          [
+                            "macCroatian",
+                            "macCroatian"
+                          ],
+                          [
+                            "macCyrillic",
+                            "macCyrillic"
+                          ],
+                          [
+                            "macGreek",
+                            "macGreek"
+                          ],
+                          [
+                            "macIceland",
+                            "macIceland"
+                          ],
+                          [
+                            "macRoman",
+                            "macRoman"
+                          ],
+                          [
+                            "macRomania",
+                            "macRomania"
+                          ],
+                          [
+                            "macThai",
+                            "macThai"
+                          ],
+                          [
+                            "macTurkish",
+                            "macTurkish"
+                          ],
+                          [
+                            "macUkraine",
+                            "macUkraine"
+                          ],
+                          [
+                            "CP950",
+                            "CP950"
+                          ],
+                          [
+                            "CP951",
+                            "CP951"
+                          ],
+                          [
+                            "IBM037",
+                            "IBM037"
+                          ],
+                          [
+                            "stateless-ISO-2022-JP",
+                            "stateless-ISO-2022-JP"
+                          ],
+                          [
+                            "eucJP-ms",
+                            "eucJP-ms"
+                          ],
+                          [
+                            "CP51932",
+                            "CP51932"
+                          ],
+                          [
+                            "EUC-JIS-2004",
+                            "EUC-JIS-2004"
+                          ],
+                          [
+                            "GB12345",
+                            "GB12345"
+                          ],
+                          [
+                            "ISO-2022-JP",
+                            "ISO-2022-JP"
+                          ],
+                          [
+                            "ISO-2022-JP-2",
+                            "ISO-2022-JP-2"
+                          ],
+                          [
+                            "CP50220",
+                            "CP50220"
+                          ],
+                          [
+                            "CP50221",
+                            "CP50221"
+                          ],
+                          [
+                            "Windows-1256",
+                            "Windows-1256"
+                          ],
+                          [
+                            "Windows-1255",
+                            "Windows-1255"
+                          ],
+                          [
+                            "TIS-620",
+                            "TIS-620"
+                          ],
+                          [
+                            "Windows-874",
+                            "Windows-874"
+                          ],
+                          [
+                            "MacJapanese",
+                            "MacJapanese"
+                          ],
+                          [
+                            "UTF-7",
+                            "UTF-7"
+                          ],
+                          [
+                            "UTF8-DoCoMo",
+                            "UTF8-DoCoMo"
+                          ],
+                          [
+                            "SJIS-DoCoMo",
+                            "SJIS-DoCoMo"
+                          ],
+                          [
+                            "UTF8-KDDI",
+                            "UTF8-KDDI"
+                          ],
+                          [
+                            "SJIS-KDDI",
+                            "SJIS-KDDI"
+                          ],
+                          [
+                            "ISO-2022-JP-KDDI",
+                            "ISO-2022-JP-KDDI"
+                          ],
+                          [
+                            "stateless-ISO-2022-JP-KDDI",
+                            "stateless-ISO-2022-JP-KDDI"
+                          ],
+                          [
+                            "UTF8-SoftBank",
+                            "UTF8-SoftBank"
+                          ],
+                          [
+                            "SJIS-SoftBank",
+                            "SJIS-SoftBank"
+                          ]
+                        ],
+                        "optional": true,
+                        "default": "UTF-8",
+                        "hint": "Default encoding type is set to UTF-8, and typically doesn't need to be changed. <a href=\"https://docs.workato.com/developing-connectors/http.html#expected-encoding\" target=\"_blank\">Learn more</a>",
+                        "type": "string",
+                        "name": "expected_encoding"
+                      },
+                      {
+                        "control_type": "schema-designer",
+                        "label": "Response schema",
+                        "sample_data_type": "json_http",
+                        "extends_schema": true,
+                        "empty_schema_title": "Describe all fields in your response.",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "name": "response_schema"
+                      },
+                      {
+                        "control_type": "schema-designer",
+                        "label": "HTTP response headers",
+                        "extends_schema": true,
+                        "empty_schema_title": "Describe all the response headers",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "name": "headers_schema"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Mark non-2xx response codes as success?",
+                        "render_input": {
+                        },
+                        "parse_output": {
+                        },
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "Mark non-2xx response codes as success?",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "default": false,
+                          "hint": "If <b>yes</b>, non 2xx response codes returned will be marked as a successful action. If <b>no</b>, non 2xx response codes returned will be marked as an error.",
+                          "optional": true,
+                          "type": "boolean",
+                          "name": "ignore_http_errors"
+                        },
+                        "default": "false",
+                        "hint": "If <b>yes</b>, non 2xx response codes returned will be marked as a successful action. If <b>no</b>, non 2xx response codes returned will be marked as an error.",
+                        "optional": true,
+                        "type": "boolean",
+                        "name": "ignore_http_errors"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "3c97b711-e309-4444-8c77-edca69ac775b",
+                "wizardFinished": true
+              },
+              {
+                "number": 73,
+                "provider": "slack_bot",
+                "name": "post_bot_reply_v2",
+                "as": "c73f9ef8",
+                "title": null,
+                "description": null,
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "blocks": [
+                    {
+                      "block_type": "section_with_text",
+                      "section_text": "See Your VM details below"
+                    },
+                    {
+                      "block_type": "section_with_text",
+                      "section_text": "=_('data.rest.7a3e7cf2.body').gsub(\"[{\", \"\").gsub(\"}]\",\"\").gsub(\",\", \"\\n\")"
+                    },
+                    {
+                      "block_type": "section_with_text",
+                      "section_text": "Click the link to connect to GAM VM:\n<#{_('data.rest.9071fe87.response.ticket')}| Connect to VM>"
+                    }
+                  ]
+                },
+                "uuid": "56ca4a2b-5014-48ae-b7e8-d50e6ad068bd"
+              },
+              {
+                "number": 74,
+                "keyword": "stop",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "stop_with_error": "false"
+                },
+                "uuid": "705e0b30-2942-485a-b0d4-57df7937e374"
+              }
+            ],
+            "uuid": "a01670cb-c92d-4bfb-ace3-fc3a37f38f66"
+          },
+          {
+            "number": 75,
+            "keyword": "if",
+            "dynamicPickListSelection": {
+            },
+            "toggleCfg": {
+            },
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "equals_to",
+                  "lhs": "#{_('data.slack_bot.ce200d10.parameters.vmaction')}",
+                  "rhs": "startvm",
+                  "uuid": "condition-5d20e071-3299-43f0-a28f-870afaa2aa29"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 76,
+                "provider": "onprem_command_line_scripts",
+                "name": "execute_script",
+                "as": "8ff5f90b",
+                "title": null,
+                "description": "Execute <span class=\"provider\">start-vm</span> script",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "script_id": "start-vm"
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "script_id": "vm_start",
+                  "parameters": {
+                    "vmname": "=_('data.slack_bot.ce200d10.parameters.vmname')"
+                  },
+                  "background": "true"
+                },
+                "extended_input_schema": [
+                  {
+                    "hint": "Provide value for script input",
+                    "label": "Script input",
+                    "name": "parameters",
+                    "optional": false,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Vmname",
+                        "name": "vmname",
+                        "type": "string"
+                      }
+                    ],
+                    "sticky": false,
+                    "type": "object"
+                  }
+                ],
+                "visible_config_fields": [
+                  "script_id",
+                  "parameters",
+                  "parameters.vmname",
+                  "background"
+                ],
+                "uuid": "d1fa3205-efda-4d37-90f1-60f39dd0e8e0"
+              },
+              {
+                "number": 77,
+                "provider": "slack_bot",
+                "name": "post_bot_reply_v2",
+                "as": "019ae462",
+                "title": null,
+                "description": null,
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "text": "Start VM request initiated.. Check VM info to see the status of your VM"
+                },
+                "uuid": "1685679d-8a67-41ff-b71d-4e03b3782e98"
+              },
+              {
+                "number": 78,
+                "keyword": "stop",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "stop_with_error": "false"
+                },
+                "uuid": "bb0a1be6-d7b1-4636-97ee-98acc8fcbcee"
+              }
+            ],
+            "uuid": "e439ac66-2a01-489b-a1f4-e5069002d2d7"
+          },
+          {
+            "number": 79,
+            "keyword": "if",
+            "dynamicPickListSelection": {
+            },
+            "toggleCfg": {
+            },
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "equals_to",
+                  "lhs": "#{_('data.slack_bot.ce200d10.parameters.vmaction')}",
+                  "rhs": "stopvm",
+                  "uuid": "condition-4892a63b-3864-466c-ba66-f4bd76bcb94b"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 80,
+                "provider": "onprem_command_line_scripts",
+                "name": "execute_script",
+                "as": "c85100db",
+                "title": null,
+                "description": "Execute <span class=\"provider\">stop-vm</span> script",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "script_id": "stop-vm"
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "script_id": "vm_stop",
+                  "parameters": {
+                    "vmname": "#{_('data.slack_bot.ce200d10.parameters.vmname')}"
+                  }
+                },
+                "extended_input_schema": [
+                  {
+                    "hint": "Provide value for script input",
+                    "label": "Script input",
+                    "name": "parameters",
+                    "optional": false,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Vmname",
+                        "name": "vmname",
+                        "type": "string"
+                      }
+                    ],
+                    "sticky": false,
+                    "type": "object"
+                  }
+                ],
+                "uuid": "5a33dc71-216f-4293-9e84-238cde5db34c"
+              },
+              {
+                "number": 81,
+                "provider": "slack_bot",
+                "name": "post_bot_reply_v2",
+                "as": "e394a4dd",
+                "title": null,
+                "description": null,
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "text": "Stop VM request initiated.. Check VM info to see the status of your VM"
+                },
+                "uuid": "34dbe086-7d63-4949-bf88-b9d70d2fa79d"
+              },
+              {
+                "number": 82,
+                "keyword": "stop",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "stop_with_error": "false"
+                },
+                "uuid": "27c72ab8-fd1c-4077-91f8-5c7ed5bffd07"
+              }
+            ],
+            "uuid": "016b7c0c-e625-4c96-84a6-f543773856db"
+          },
+          {
+            "number": 83,
+            "keyword": "if",
+            "dynamicPickListSelection": {
+            },
+            "toggleCfg": {
+            },
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "equals_to",
+                  "lhs": "#{_('data.slack_bot.ce200d10.parameters.vmaction')}",
+                  "rhs": "deletevm",
+                  "uuid": "condition-753ad42e-654a-4ad7-a571-565441b00708"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 84,
+                "provider": "lookup_table",
+                "name": "search_entries",
+                "as": "ec789b4a",
+                "title": null,
+                "description": "\n      Search\n      <span class=\"provider\">entries</span>\n      in\n      <span class=\"provider\">ERIC-VMware-db</span>\n      lookup table\n    ",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "lookup_table_id": "ERIC-VMware-db"
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "lookup_table_id": {
+                    "zip_name": "ERIC_vmware_db.lookup_table.json",
+                    "name": "ERIC-VMware-db",
+                    "folder": ""
+                  },
+                  "parameters": {
+                    "col2": "#{_('data.slack_bot.ce200d10.context.user_email')}"
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Entries",
+                    "name": "entries",
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "number",
+                        "label": "Entry ID",
+                        "parse_output": "integer_conversion",
+                        "type": "integer",
+                        "name": "id"
+                      },
+                      {
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "UserAccount",
+                            "name": "col2",
+                            "type": "string",
+                            "sticky": true
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "VmInfo",
+                            "name": "col3",
+                            "type": "string",
+                            "sticky": true
+                          }
+                        ],
+                        "label": "Entry",
+                        "type": "object",
+                        "name": "entry"
+                      }
+                    ],
+                    "type": "array"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "hint": "Provide one or more entry fields to search the entry",
+                    "label": "Search by",
+                    "name": "parameters",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "UserAccount",
+                        "name": "col2",
+                        "type": "string",
+                        "sticky": true,
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "VmInfo",
+                        "name": "col3",
+                        "type": "string",
+                        "sticky": true,
+                        "optional": true
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "21b6e640-a311-4554-b851-8537c48270f1"
+              },
+              {
+                "number": 85,
+                "provider": "lookup_table",
+                "name": "get_entry",
+                "as": "87e69330",
+                "title": null,
+                "description": "\n      Lookup\n      <span class=\"provider\">entry</span>\n      from\n      <span class=\"provider\">ERIC-VMware-db</span>\n      lookup table\n    ",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "lookup_table_id": "ERIC-VMware-db"
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "lookup_table_id": {
+                    "zip_name": "ERIC_vmware_db.lookup_table.json",
+                    "name": "ERIC-VMware-db",
+                    "folder": ""
+                  },
+                  "parameters": {
+                    "col2": "#{_('data.slack_bot.ce200d10.context.user_email')}",
+                    "col3": "#{_('data.slack_bot.ce200d10.parameters.vmname')}"
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "control_type": "number",
+                    "label": "Entry ID",
+                    "name": "id",
+                    "parse_output": "integer_conversion",
+                    "type": "integer"
+                  },
+                  {
+                    "label": "Entry",
+                    "name": "entry",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "UserAccount",
+                        "name": "col2",
+                        "type": "string",
+                        "sticky": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "VmInfo",
+                        "name": "col3",
+                        "type": "string",
+                        "sticky": true
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "hint": "Provide one or more entry fields to search the entry",
+                    "label": "Lookup by",
+                    "name": "parameters",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "UserAccount",
+                        "name": "col2",
+                        "type": "string",
+                        "sticky": true,
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "VmInfo",
+                        "name": "col3",
+                        "type": "string",
+                        "sticky": true,
+                        "optional": true
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "99a207fe-88a2-4a11-9ff1-207991332671"
+              },
+              {
+                "number": 86,
+                "provider": "onprem_command_line_scripts",
+                "name": "execute_script",
+                "as": "b162715b",
+                "title": null,
+                "description": "Execute <span class=\"provider\">delete-vm</span> script",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "script_id": "delete-vm"
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "script_id": "vm_delete",
+                  "background": "true",
+                  "parameters": {
+                    "vmname": "#{_('data.slack_bot.ce200d10.parameters.vmname')}"
+                  }
+                },
+                "extended_input_schema": [
+                  {
+                    "hint": "Provide value for script input",
+                    "label": "Script input",
+                    "name": "parameters",
+                    "optional": false,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Vmname",
+                        "name": "vmname",
+                        "type": "string"
+                      }
+                    ],
+                    "sticky": false,
+                    "type": "object"
+                  }
+                ],
+                "visible_config_fields": [
+                  "script_id",
+                  "parameters",
+                  "parameters.vmname",
+                  "background"
+                ],
+                "uuid": "85f7507d-cec0-4e87-b3e6-b096c589f371"
+              },
+              {
+                "number": 87,
+                "provider": "lookup_table",
+                "name": "delete_entry",
+                "as": "a93a9f50",
+                "title": null,
+                "description": "\n      Delete\n      <span class=\"provider\">entry</span>\n      in\n      <span class=\"provider\">ERIC-VMware-db</span>\n      lookup table\n    ",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "lookup_table_id": "ERIC-VMware-db"
+                },
+                "toggleCfg": {
+                  "ignore_not_found": true
+                },
+                "input": {
+                  "ignore_not_found": "false",
+                  "lookup_table_id": {
+                    "zip_name": "ERIC_vmware_db.lookup_table.json",
+                    "name": "ERIC-VMware-db",
+                    "folder": ""
+                  },
+                  "id": "#{_('data.lookup_table.87e69330.id')}"
+                },
+                "uuid": "52876376-d9eb-479d-ba1b-9385c9a298a3"
+              },
+              {
+                "number": 88,
+                "provider": "slack_bot",
+                "name": "post_bot_reply_v2",
+                "as": "91bf0fae",
+                "title": null,
+                "description": null,
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "text": "Delete VM request initiated.. Check VM info to see the status of your VM"
+                },
+                "uuid": "0c4bec57-3f7b-4db6-b553-8789ae5620c8"
+              },
+              {
+                "number": 89,
+                "keyword": "stop",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "stop_with_error": "false"
+                },
+                "uuid": "3908b740-cf3e-48df-b99d-bfb4741d457f"
+              }
+            ],
+            "uuid": "aa7e3c18-3eaf-4f05-89e5-62342a5644f5"
+          }
+        ],
+        "uuid": "d1a28703-5070-405e-a997-c6faf2aed762"
+      }
+    ],
+    "uuid": "362fa96e-12e0-4763-b02e-2df07a90a20f"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "slack_bot",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Common/common_slackbot_kape_bot.connection.json",
+        "name": "[Common][SlackBot]Kape Bot",
+        "folder": "Common"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "lookup_table",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_variable",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "onprem_command_line_scripts",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/vm_opa_conn.connection.json",
+        "name": "VM_OPA_CONN",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_list",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "rest",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "vcenter_http.connection.json",
+        "name": "Vcenter HTTP",
+        "folder": ""
+      }
+    }
+  ]
+}
