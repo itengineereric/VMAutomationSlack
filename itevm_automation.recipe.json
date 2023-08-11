@@ -2953,7 +2953,7 @@
                   "request": {
                     "method": "POST",
                     "content_type": "application/json",
-                    "url": "https://evcenter-01.it.xvservice.net/rest/com/vmware/cis/session",
+                    "url": "https://evcenter-01.it.itcloud.one/rest/com/vmware/cis/session",
                     "headers": [
                       {
                         "header": "Authorization",
@@ -3506,7 +3506,7 @@
                   "request": {
                     "method": "GET",
                     "content_type": "application/json",
-                    "url": "https://evcenter-01.it.xvservice.net/api/vcenter/vm?names=#{_('data.slack_bot.ce200d10.parameters.vmname')}",
+                    "url": "https://evcenter-01.it.itcloud.one/api/vcenter/vm?names=#{_('data.slack_bot.ce200d10.parameters.vmname')}",
                     "headers": [
                       {
                         "header": "vmware-api-session-id",
@@ -4053,7 +4053,7 @@
                   "request": {
                     "method": "POST",
                     "content_type": "application/json",
-                    "url": "https://evcenter-01.it.xvservice.net/api/vcenter/vm/#{_('data.workato_variable.ea0a5bf2.vmid')}/console/tickets",
+                    "url": "https://evcenter-01.it.itcloud.one/api/vcenter/vm/#{_('data.workato_variable.ea0a5bf2.vmid')}/console/tickets",
                     "body": "{\n    \"type\": \"VMRC\"\n}",
                     "headers": [
                       {
